@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>New Tab Note</title>
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+</head>
+
+<body>
+  <div class="navbar">
+    <div class="mode-buttons">
+      <label class="mode-button" for="mode-edit" title="edit">
+        <input type="radio" id="mode-edit" name="mode" autocomplete="off" />
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M11.7224 64.4444L6.44457 87.2222C6.26251 88.0549 6.26875 88.9177 6.46284 89.7476C6.65693 90.5775 7.03397 91.3536 7.56642 92.0192C8.09886 92.6847 8.77326 93.2229 9.54034 93.5945C10.3074 93.966 11.1478 94.1615 12.0001 94.1667C12.3973 94.2068 12.7974 94.2068 13.1946 94.1667L36.1112 88.8889L80.1112 45.0555L55.5557 20.5555L11.7224 64.4444Z"
+            fill="#B9B9B9" />
+          <path
+            d="M93.9444 23.1111L77.5555 6.72222C76.478 5.65018 75.0199 5.04837 73.4999 5.04837C71.98 5.04837 70.5219 5.65018 69.4444 6.72222L60.3333 15.8333L84.861 40.3611L93.9721 31.25C94.5053 30.7141 94.9276 30.0783 95.2148 29.3791C95.5021 28.6798 95.6486 27.9308 95.646 27.1748C95.6434 26.4188 95.4918 25.6708 95.1998 24.9735C94.9078 24.2762 94.4812 23.6434 93.9444 23.1111V23.1111Z"
+            fill="#B9B9B9" />
+        </svg>
+      </label>
+      <label class="mode-button" for="mode-split" title="split">
+        <input type="radio" id="mode-split" name="mode" autocomplete="off" />
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0)">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M87.5 12.5H12.5C10.8424 12.5 9.25268 13.1585 8.08058 14.3306C6.90848 15.5027 6.25 17.0924 6.25 18.75V81.25C6.25 82.9076 6.90848 84.4973 8.08058 85.6694C9.25268 86.8415 10.8424 87.5 12.5 87.5H87.5C89.1576 87.5 90.7473 86.8415 91.9194 85.6694C93.0915 84.4973 93.75 82.9076 93.75 81.25V18.75C93.75 17.0924 93.0915 15.5027 91.9194 14.3306C90.7473 13.1585 89.1576 12.5 87.5 12.5V12.5ZM12.5 6.25C9.18479 6.25 6.00537 7.56696 3.66117 9.91117C1.31696 12.2554 0 15.4348 0 18.75L0 81.25C0 84.5652 1.31696 87.7446 3.66117 90.0888C6.00537 92.433 9.18479 93.75 12.5 93.75H87.5C90.8152 93.75 93.9946 92.433 96.3388 90.0888C98.683 87.7446 100 84.5652 100 81.25V18.75C100 15.4348 98.683 12.2554 96.3388 9.91117C93.9946 7.56696 90.8152 6.25 87.5 6.25H12.5Z"
+              fill="#B9B9B9" />
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M46.875 87.5V12.5H53.125V87.5H46.875Z" fill="#B9B9B9" />
+          </g>
+          <defs>
+            <clipPath id="clip0">
+              <rect width="100" height="100" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </label>
+      <label class="mode-button active" for="mode-preview" title="preview">
+        <input type="radio" id="mode-preview" name="mode" autocomplete="off" checked />
+        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M50.0001 18.75C29.1667 18.75 11.3751 31.7083 4.16675 50C11.3751 68.2917 29.1667 81.25 50.0001 81.25C70.8334 81.25 88.6251 68.2917 95.8334 50C88.6251 31.7083 70.8334 18.75 50.0001 18.75ZM50.0001 70.8333C38.5001 70.8333 29.1667 61.5 29.1667 50C29.1667 38.5 38.5001 29.1667 50.0001 29.1667C61.5001 29.1667 70.8334 38.5 70.8334 50C70.8334 61.5 61.5001 70.8333 50.0001 70.8333ZM50.0001 37.5C43.0834 37.5 37.5001 43.0833 37.5001 50C37.5001 56.9167 43.0834 62.5 50.0001 62.5C56.9167 62.5 62.5001 56.9167 62.5001 50C62.5001 43.0833 56.9167 37.5 50.0001 37.5Z"
+            fill="#B9B9B9" />
+        </svg>
+      </label>
+    </div>
+  </div>
+  <div class="container">
+    <div id="edit-window" class="edit none">
+      <div class="edit-inner">
+        <div id="edit-input" class="edit-input" contenteditable="true"></div>
+      </div>
+    </div>
+    <div id="preview-window" class="preview"></div>
+  </div>
+  <script src="js/lib/marked.js"></script>
+  <script src="js/newTabNote.js"></script>
+</body>
+
+</html>

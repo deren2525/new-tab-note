@@ -1,0 +1,18 @@
+{
+  "name": "New Tab Note",
+  "version": "1.0",
+  "description": "NewTabNote a new tab extension for notes!",
+  "page_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "32": "assets/images/icon.png"
+    }
+  },
+  "chrome_url_overrides": {
+    "newtab": "newTabNote.html"
+  },
+  "icons": {
+    "48": "assets/images/icon.png"
+  },
+  "manifest_version": 2
+}
