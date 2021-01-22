@@ -1,1 +1,273 @@
-@font-face{font-family:Lato-Regular;font-weight:400;src:url(/assets/fonts/Lato-Regular.woff) format("woff")}@font-face{font-family:Lato-Black;font-weight:400;src:url(/assets/fonts/Lato-Black.woff) format("woff")}@font-face{font-family:Lato-Italic;font-weight:400;src:url(/assets/fonts/Lato-Italic.woff) format("woff")}html,body{width:100%;height:100%;box-sizing:border-box;margin:0}*{line-height:1.6;outline:none;font-size:1.5rem}*::before{content:"";-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}*::after{content:"";-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}html{font-size:62.5%}body{font-family:"Lato-Regular"}h1,h2,h3,h4,h5,h6{font-weight:bold;font-family:"Lato-Bold";margin:1.5em 0;line-height:1.33}h1{font-size:4rem}h1::after,h2::after{content:"";display:block;position:relative;top:.33em;border-bottom:1px solid hsla(0,0%,50%,.33)}h2{font-size:3.4rem}h3{font-size:2.7rem;margin:1.2em 0 .5em}h4{font-size:2rem;margin:1em 0 .5em}h5{font-size:1.8rem;margin:1em 0 .5em}h6{font-size:1.5rem;margin:1em 0 .5em}p,pre,pre.prettyprint,blockquote{margin:0 0 1.1em}pre>code{background-color:rgba(0,0,0,.05);display:block;padding:1.5em;-webkit-text-size-adjust:none;overflow-x:auto;white-space:pre}blockquote,dl,ol,p,pre{margin:1.2em 0}ul,ol{margin-top:0;margin-bottom:1.1em;padding-left:2em}code,pre,samp{font-family:Roboto Mono,Lucida Sans Typewriter,Lucida Console,monaco,Courrier,monospace;font-size:1.2rem}b,strong{font-family:"Lato-Black";font-weight:900}p{font-size:1.5rem}blockquote{border-left:10px solid rgba(102,128,153,.075);background-color:rgba(102,128,153,.05);border-top-right-radius:5px;border-bottom-right-radius:5px;padding:15px 20px}blockquote p{margin:0}.navbar{width:100%;height:35px;background:#2c2c2c}.container{width:100%;height:calc(100% - 35px);display:flex;box-sizing:border-box}.mode-buttons{display:flex;align-items:center;width:112px;height:35px}.mode-buttons input{position:absolute;clip:rect(0,0,0,0);pointer-events:none}.mode-button svg{width:15px}.mode-button{display:flex;align-items:center;justify-content:center;width:35px;height:100%;padding:6px 9px;cursor:pointer;box-sizing:border-box}.mode-button:hover{background:hsla(0,0%,100%,.1)}.mode-button.active{background:hsla(0,0%,100%,.1)}.mode-button.active svg path{fill:#fff}.mode-button:hover svg path{fill:#fff}.edit,.preview{flex-grow:1;box-sizing:border-box;min-width:50%;height:100%;padding:50px 30px 30px;overflow:scroll}.edit{background:#2c2c2c;color:#fff}.edit.none{display:none}.edit-input{white-space:break-spaces}.edit.none+.preview{max-width:1024px;margin:auto}.preview{background:#fff;color:#2d2d2d}.preview.none{display:none}.preview h1:first-child{margin-top:0}.edit-input{min-height:100vh}
+@font-face {
+  font-family: Lato-Regular;
+  font-weight: 400;
+  src: url(/assets/fonts/Lato-Regular.woff) format("woff")
+}
+
+@font-face {
+  font-family: Lato-Black;
+  font-weight: 400;
+  src: url(/assets/fonts/Lato-Black.woff) format("woff")
+}
+
+@font-face {
+  font-family: Lato-Italic;
+  font-weight: 400;
+  src: url(/assets/fonts/Lato-Italic.woff) format("woff")
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0
+}
+
+* {
+  line-height: 1.6;
+  outline: none;
+  font-size: 1.5rem
+}
+
+*::before {
+  content: "";
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box
+}
+
+*::after {
+  content: "";
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box
+}
+
+html {
+  font-size: 62.5%
+}
+
+body {
+  font-family: "Lato-Regular"
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+  font-family: "Lato-Bold";
+  margin: 1.2em 0;
+  line-height: 1.33
+}
+
+h1 {
+  font-size: 2.0em;
+}
+
+h1::after, h2::after {
+  content: "";
+  display: block;
+  position: relative;
+  top: .33em;
+  border-bottom: 1px solid hsla(0, 0%, 50%, .33)
+}
+
+h2 {
+  font-size: 1.8em;
+}
+
+h3 {
+  font-size: 1.6em;
+  margin: 1.2em 0 .5em
+}
+
+h4 {
+  font-size: 1.4em;
+  margin: 1em 0 .5em
+}
+
+h5 {
+  font-size: 1.3em;
+  margin: 1em 0 .5em
+}
+
+h6 {
+  font-size: 1.2em;
+  margin: 1em 0 .5em
+}
+
+p, pre, pre.prettyprint, blockquote {
+  margin: 0 0 1.1em
+}
+
+pre>code {
+  background-color: rgba(0, 0, 0, .05);
+  display: block;
+  padding: 1.5em;
+  -webkit-text-size-adjust: none;
+  overflow-x: auto;
+  white-space: pre
+}
+
+blockquote, dl, ol, p, pre {
+  margin: 1.2em 0
+}
+
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 1.1em;
+  padding-left: 2em
+}
+
+code, pre, samp {
+  font-family: Roboto Mono, Lucida Sans Typewriter, Lucida Console, monaco, Courrier, monospace;
+  font-size: 1.2rem
+}
+
+b, strong {
+  font-family: "Lato-Black";
+  font-weight: 900
+}
+
+p {
+  font-size: 1.5rem
+}
+
+blockquote {
+  border-left: 10px solid rgba(102, 128, 153, .075);
+  background-color: rgba(102, 128, 153, .05);
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  padding: 15px 20px
+}
+
+blockquote p {
+  margin: 0
+}
+
+.navbar {
+  position: fixed;
+  width: 100%;
+  height: 35px;
+  background: #2c2c2c
+}
+
+.container {
+  width: 100%;
+  height: calc(100% - 35px);
+  display: flex;
+  box-sizing: border-box
+}
+
+.mode-buttons {
+  display: flex;
+  align-items: center;
+  width: 112px;
+  height: 35px
+}
+
+.mode-buttons input {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none
+}
+
+.mode-button svg {
+  width: 15px
+}
+
+.mode-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 100%;
+  padding: 6px 9px;
+  cursor: pointer;
+  box-sizing: border-box
+}
+
+.mode-button:hover {
+  background: hsla(0, 0%, 100%, .1)
+}
+
+.mode-button.active {
+  background: hsla(0, 0%, 100%, .1)
+}
+
+.mode-button.active svg path {
+  fill: #fff
+}
+
+.mode-button:hover svg path {
+  fill: #fff
+}
+
+.preview {
+  flex-grow: 1;
+  box-sizing: border-box;
+  min-width: 50%;
+  height: 100%;
+  padding: 80px 30px 30px;
+  overflow: scroll
+}
+
+.edit {
+  background: #2c2c2c;
+  color: #fff;
+  flex-grow: 1;
+  box-sizing: border-box;
+  min-width: 50%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.edit.none {
+  display: none
+}
+
+.edit-window {
+  width: 100%;
+}
+
+.edit-input {
+  width: 100%;
+  max-height: 200px;
+  min-height: 100vh;
+  padding: 80px 30px 30px;
+  line-height: 20px;
+  font-size: 14px;
+  background: #2c2c2c;
+  color: #fff;
+  box-sizing: border-box;
+  -ms-overflow-style: none;
+  /* IE, Edge 対応 */
+  scrollbar-width: none;
+  /* Firefox 対応 */
+  white-space: break-spaces;
+  resize: none;
+}
+
+.edit-input::-webkit-scrollbar {
+  display: none;
+}
+
+.edit.none+.preview {
+  max-width: 1024px;
+  margin: auto
+}
+
+.preview {
+  background: #fff;
+  color: #2d2d2d
+}
+
+.preview::-webkit-scrollbar {
+  display: none;
+}
+
+.preview.none {
+  display: none
+}
+
+.preview h1:first-child {
+  margin-top: 0
+}
