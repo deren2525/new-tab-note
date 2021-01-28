@@ -23,7 +23,6 @@ window.onload = () => {
     editInput.value = localStorage.getItem("new_tab_note").replace(/\s+$/, '');
     previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note"));
 
-    console.log(editInput.value)
   } else {
     localStorage.setItem("new_tab_note_init", initText);
     editInput.value = localStorage.getItem("new_tab_note_init");
@@ -41,7 +40,6 @@ editInput.addEventListener("input", () => {
 
 editInput.addEventListener("keydown", (e) => {
   if (!e) return
-  console.log(this)
   if (e.key === "Tab") {
     e.preventDefault();
 
