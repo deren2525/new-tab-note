@@ -18,11 +18,9 @@ window.onload = () => {
   editInput.style.height = height + "px";
   previewWindow.style.height = height + 35 + "px";
 
-  if (localStorage.getItem("new_tab_note")) {
-    // editInput.innerText = localStorage.getItem("new_tab_note");
-    editInput.value = localStorage.getItem("new_tab_note").replace(/\s+$/, '');
+  if (localStorage.hasOwnProperty("new_tab_note")) {
+    editInput.value = localStorage.getItem("new_tab_note").replace(/\s+$/, "");
     previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note"));
-
   } else {
     localStorage.setItem("new_tab_note_init", initText);
     editInput.value = localStorage.getItem("new_tab_note_init");
@@ -31,29 +29,62 @@ window.onload = () => {
 };
 
 editInput.addEventListener("input", () => {
+  if (!localStorage.hasOwnProperty("new_tab_note")) {
+    localStorage.setItem("new_tab_note", "");
+  }
   saveToLocalStorage(editInput.value);
 
   // 改行でテキストエリア の高さ自動調整
-  const lines = (editInput.value + '\n').match(/\n/g).length;
-  editInput.style.height = lines * editInputLineHeight
+  const lines = (editInput.value + "\n").match(/\n/g).length;
+  editInput.style.height = lines * editInputLineHeight;
 });
 
 editInput.addEventListener("keydown", (e) => {
-  if (!e) return
+  if (!e) return;
+
   if (e.key === "Tab") {
     e.preventDefault();
-
     // 現在のカーソルの位置
     const cursorPosition = editInput.selectionStart;
     // カーソルの左右の文字列を取得
     const cursorLeft = editInput.value.substr(0, cursorPosition);
     const cursorRight = editInput.value.substr(cursorPosition, editInput.value.length);
-    editInput.value = cursorLeft + "　" + cursorRight;
+    editInput.value = cursorLeft + "  " + cursorRight;
     // カーソルの位置を入力したタブの後ろにする
-    editInput.selectionEnd = cursorPosition + 1;
+    editInput.selectionEnd = cursorPosition + 2;
     saveToLocalStorage(editInput.value);
   }
+
+  if (e.key === "Enter") {
+    // 現在のカーソルの位置
+    const cursorPosition = editInput.selectionStart;
+    // カーソル位置までの文字を取得
+    const text = editInput.value.substr(0, cursorPosition);
+    const targetSentence = text.split("\n").pop();
+
+    // list
+    const regexList = /^[*-]\s+/;
+    // listの小要素
+    const regexListChild = /^\s+[*-]\s+/;
+    // 数字のlist
+    const regexNumberList = /^[0-9]+.\s+/;
+    if (regexList.test(targetSentence)) {
+      e.preventDefault();
+      setListPoint(regexList, targetSentence, cursorPosition);
+    } else if (regexListChild.test(targetSentence)) {
+      e.preventDefault();
+      setListPoint(regexListChild, targetSentence, cursorPosition);
+    }
+  }
 })
+
+function setListPoint(regex, targetSentence, cursorPosition) {
+  const listPoint = targetSentence.match(regex)[0];
+  editInput.value = editInput.value.substr(0, cursorPosition) + "\n" + listPoint + editInput.value.substr(cursorPosition, editInput.value.length);
+  editInput.focus();
+  var newCaret = cursorPosition + "\n".length + listPoint.length;
+  editInput.setSelectionRange(newCaret, newCaret);
+}
 
 // Mode button click
 modeEditButton.addEventListener("click", (e) => {

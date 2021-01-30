@@ -1,6 +1,6 @@
 {
   "name": "New Tab Note",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "NewTabNote a new tab extension for notes!",
   "page_action": {
     "default_popup": "popup.html",
