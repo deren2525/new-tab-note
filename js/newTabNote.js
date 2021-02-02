@@ -88,7 +88,7 @@ function setListPoint(regex, targetSentence, cursorPosition) {
   editInput.setSelectionRange(newCaret, newCaret);
 }
 
-// Mode button click
+// Mode button
 modeEditButton.addEventListener("click", (e) => {
   editWindow.classList.remove("none");
   previewWindow.classList.add("none");
@@ -116,11 +116,11 @@ function modeButtonStatus(e) {
 }
 
 function saveToLocalStorage(value) {
-  // Save to local storage
+  // ローカルストレージに保存
   localStorage.setItem("new_tab_note", value);
-  // Convert to markdown
+  // マークダウンに変換
   convertedText = marked(value);
-  // Convert [] [x] to checkbox
+  // - [] , - [x] をチェックボックス変換
   previewWindow.innerHTML = convertedText.replace(
     /\[x\]/g,
     '<input type="checkbox" checked="checked">'
