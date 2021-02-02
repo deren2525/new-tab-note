@@ -42,7 +42,8 @@ editInput.addEventListener("input", () => {
 editInput.addEventListener("keydown", (e) => {
   if (!e) return;
 
-  if (e.key === "Tab") {
+  // Tab
+  if (e.keyCode === 9) {
     e.preventDefault();
     // 現在のカーソルの位置
     const cursorPosition = editInput.selectionStart;
@@ -55,7 +56,8 @@ editInput.addEventListener("keydown", (e) => {
     saveToLocalStorage(editInput.value);
   }
 
-  if (e.key === "Enter") {
+  // Enter
+  if (e.keyCode === 13) {
     // 現在のカーソルの位置
     const cursorPosition = editInput.selectionStart;
     // カーソル位置までの文字を取得
