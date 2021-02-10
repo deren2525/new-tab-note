@@ -26,6 +26,8 @@ window.onload = () => {
     editInput.value = localStorage.getItem("new_tab_note_init");
     previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note_init"));
   }
+
+  modeHandler.setModeFromSavedMode()
 };
 
 editInput.addEventListener("input", () => {
@@ -92,16 +94,19 @@ function setListPoint(regex, targetSentence, cursorPosition) {
 modeEditButton.addEventListener("click", (e) => {
   editWindow.classList.remove("none");
   previewWindow.classList.add("none");
+  modeHandler.saveMode("mode-edit");
   modeButtonStatus(e);
 });
 modeSplitButton.addEventListener("click", (e) => {
   editWindow.classList.remove("none");
   previewWindow.classList.remove("none");
+  modeHandler.saveMode("mode-split");
   modeButtonStatus(e);
 });
 modePreviewButton.addEventListener("click", (e) => {
   editWindow.classList.add("none");
   previewWindow.classList.remove("none");
+  modeHandler.saveMode("mode-preview");
   modeButtonStatus(e);
 });
 
@@ -130,6 +135,40 @@ function saveToLocalStorage(value) {
     '<input type="checkbox">'
   );
 }
+
+// 状態の保持
+const createModeHandler = () => {
+  const MODE_KEY = "new_tab_note:mode";
+
+  const getSavedMode = () => {
+    if (localStorage.hasOwnProperty(MODE_KEY)) {
+      return localStorage.getItem(MODE_KEY)
+    }
+    return null;
+  }
+
+  // modeには"mode-edit", "mode-split", "mode-preview"を使う
+  const saveMode = (mode) => {
+    localStorage.setItem(MODE_KEY, mode);
+  }
+
+  const clickModeElement = (modeElementId) => {
+    document.getElementById(modeElementId).click()
+  }
+
+  const setModeFromSavedMode = () => {
+    const currentMode = getSavedMode()
+    if (currentMode === null) return;
+    clickModeElement(currentMode);
+  }
+
+  return {
+    saveMode,
+    setModeFromSavedMode
+  }
+}
+
+const modeHandler = createModeHandler()
 
 // Window risize
 window.addEventListener(
