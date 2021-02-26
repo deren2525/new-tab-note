@@ -41,6 +41,15 @@ editInput.addEventListener("input", () => {
   editInput.style.height = lines * editInputLineHeight;
 });
 
+// 他のタブが更新されたら現在のタブの表示も更新するように
+window.addEventListener("storage", (event) => {
+  if (event.key === "new_tab_note") {
+    const newVal = event.newValue
+    editInput.value = newVal.replace(/\s+$/, "");
+    previewWindow.innerHTML = marked(newVal);
+  }
+})
+
 editInput.addEventListener("keydown", (e) => {
   if (!e) return;
 
