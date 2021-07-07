@@ -1,6 +1,4 @@
-const initText =
-  "# Welcome to NewTabNote!!\n\nThank you for downloading NewTabNote! 🎉\nNewTabNote a new tab extension for notes 📖\nLet's edit by pressing the pencil mark in the upper left!\n\n## Example\n\n### ■ Emphasis\n*This text will be italic.*\n**This text will be bold.**\n*You **can** combine them.*\n\n### ■ Lists\n\n####  Unordered\n* Item 1\n* Item 2\n  * Item 2a\n  * Item 2b\n\n#### Ordered\n1. Item 1\n2. Item 2\n3. Item 3\n\n### ■ Link\n[Chrome Web Store](https://chrome.google.com/webstore/category/extensions?hl=en&)\n\n### ■ Task Lists\n- [ ] Task 1\n- [X] Task 2\n\n### ■ Blockquote\n> **note**\n> element is used to indicate the quotation of a large section of text from another source.\n\n### ■ Code\n```\nif (isAwesome) {\n  return true\n}\n```\n";
-
+const initText = chrome.i18n.getMessage('InitText');
 // Input
 const editInput = document.getElementById("edit-input");
 const editInputLineHeight = parseInt(editInput.style.lineHeight);
@@ -12,9 +10,13 @@ const modeButtons = Array.from(document.getElementsByClassName("mode-button"));
 const modeEditButton = document.getElementById("mode-edit");
 const modeSplitButton = document.getElementById("mode-split");
 const modePreviewButton = document.getElementById("mode-preview");
+// Filter
+const filterButton = document.getElementById("filter-button");
+const filterActiveButton = document.getElementById("filter-active");
+const filterNoActiveButton = document.getElementById("filter-no-active");
 
 window.onload = () => {
-  const height = window.innerHeight - 35;
+  const height = window.innerHeight - 70;
   editInput.style.height = height + "px";
   previewWindow.style.height = height + 35 + "px";
 
@@ -27,7 +29,8 @@ window.onload = () => {
     previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note_init"));
   }
 
-  modeHandler.setModeFromSavedMode()
+  modeHandler.setModeFromSavedMode();
+  filterStatusHandler.setFilterStatus()
 };
 
 editInput.addEventListener("input", () => {
@@ -145,7 +148,7 @@ function saveToLocalStorage(value) {
   );
 }
 
-// 状態の保持
+// モード状態の保持
 const createModeHandler = () => {
   const MODE_KEY = "new_tab_note:mode";
 
@@ -177,7 +180,50 @@ const createModeHandler = () => {
   }
 }
 
-const modeHandler = createModeHandler()
+const modeHandler = createModeHandler();
+
+// フィルター状態の保持
+const createFilterStatusHandler = () => {
+  const FILTER_KEY = "new_tab_note:filter";
+
+  const getSavedFilterStatus = () => {
+    if (localStorage.hasOwnProperty(FILTER_KEY)) {
+      return localStorage.getItem(FILTER_KEY)
+    }
+    return null;
+  }
+
+  const saveFilterStatus = (status) => {
+    localStorage.setItem(FILTER_KEY, status);
+  }
+
+  const setFilterStatus = () => {
+    const status = getSavedFilterStatus();
+    if (status === 'true') {
+      filterActiveButton.style.display = 'none';
+      filterNoActiveButton.style.display = 'block';
+      editInput.classList.add('filter');
+      editInput.readOnly = true;
+      previewWindow.classList.add('filter');
+      filterButton.checked = true;
+    } else {
+      filterNoActiveButton.style.display = 'none';
+      filterActiveButton.style.display = 'block';
+      filterButton.checked = false;
+      editInput.classList.remove('filter');
+      editInput.readOnly = false;
+      previewWindow.classList.remove('filter');
+    }
+  }
+
+  return {
+    saveFilterStatus,
+    setFilterStatus
+  }
+}
+
+const filterStatusHandler = createFilterStatusHandler();
+
 
 // Window risize
 window.addEventListener(
@@ -193,4 +239,23 @@ window.addEventListener(
 marked.setOptions({
   breaks: true,
   langPrefix: "",
+});
+
+// filter
+filterButton.addEventListener('change', (e) => {
+  if (e.target.checked) {
+    filterActiveButton.style.display = 'none';
+    filterNoActiveButton.style.display = 'block';
+    editInput.classList.add('filter');
+    editInput.readOnly = true;
+    previewWindow.classList.add('filter');
+    filterStatusHandler.saveFilterStatus(true);
+  } else {
+    filterNoActiveButton.style.display = 'none';
+    filterActiveButton.style.display = 'block';
+    filterStatusHandler.saveFilterStatus(false);
+    editInput.classList.remove('filter');
+    editInput.readOnly = false;
+    previewWindow.classList.remove('filter');
+  }
 });
