@@ -147,10 +147,20 @@ blockquote p {
   position: fixed;
   width: 100%;
   height: 35px;
-  background: #2c2c2c
+  background: #2c2c2c;
+}
+
+.navbar-inner {
+  display: flex;
+  width: 50%;
+  height: 100%;
+  padding: 0 30px;
+  box-sizing: border-box;
 }
 
 .container {
+  position: relative;
+  top: 35px;
   width: 100%;
   height: calc(100% - 35px);
   display: flex;
@@ -164,17 +174,26 @@ blockquote p {
   height: 35px
 }
 
-.mode-buttons input {
+.mode-buttons input,
+#filter-button {
   position: absolute;
   clip: rect(0, 0, 0, 0);
   pointer-events: none
 }
 
-.mode-button svg {
-  width: 15px
+.mode-button svg,
+.filter-button svg {
+  width: 15px;
+  height: 100%;
 }
 
-.mode-button {
+.filter-button div {
+  display: flex;
+  height: 100%;
+}
+
+.mode-button,
+.filter-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,11 +204,13 @@ blockquote p {
   box-sizing: border-box
 }
 
-.mode-button:hover {
+.mode-button:hover,
+.filter-button:hover  {
   background: hsla(0, 0%, 100%, .1)
 }
 
-.mode-button.active {
+.mode-button.active,
+.filter-button:hover {
   background: hsla(0, 0%, 100%, .1)
 }
 
@@ -199,6 +220,13 @@ blockquote p {
 
 .mode-button:hover svg path {
   fill: #fff
+}
+
+.right-menu {
+  display: flex;
+  align-items: center;
+  height: 35px;
+  margin-left: auto;
 }
 
 .preview {
@@ -232,7 +260,7 @@ blockquote p {
   width: 100%;
   max-height: 200px;
   min-height: 100vh;
-  padding: 80px 30px 30px;
+  padding: 50px 30px 30px;
   line-height: 20px;
   font-size: 14px;
   background: #2c2c2c;
@@ -244,6 +272,11 @@ blockquote p {
   /* Firefox 対応 */
   white-space: break-spaces;
   resize: none;
+  border: none;
+}
+
+.edit-input.filter {
+  filter: blur(5px);
 }
 
 .edit-input::-webkit-scrollbar {
@@ -258,6 +291,10 @@ blockquote p {
 .preview {
   background: #fff;
   color: #2d2d2d
+}
+
+.preview.filter {
+  filter: blur(5px);
 }
 
 .preview::-webkit-scrollbar {
