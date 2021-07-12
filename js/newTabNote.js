@@ -11,6 +11,7 @@ const modeEditButton = document.getElementById("mode-edit");
 const modeSplitButton = document.getElementById("mode-split");
 const modePreviewButton = document.getElementById("mode-preview");
 // Filter
+const filterDisplay = document.getElementById("filter-display");
 const filterButton = document.getElementById("filter-button");
 const filterActiveButton = document.getElementById("filter-active");
 const filterNoActiveButton = document.getElementById("filter-no-active");
@@ -200,19 +201,9 @@ const createFilterStatusHandler = () => {
   const setFilterStatus = () => {
     const status = getSavedFilterStatus();
     if (status === 'true') {
-      filterActiveButton.style.display = 'none';
-      filterNoActiveButton.style.display = 'block';
-      editInput.classList.add('filter');
-      editInput.readOnly = true;
-      previewWindow.classList.add('filter');
-      filterButton.checked = true;
+      onFilter();
     } else {
-      filterNoActiveButton.style.display = 'none';
-      filterActiveButton.style.display = 'block';
-      filterButton.checked = false;
-      editInput.classList.remove('filter');
-      editInput.readOnly = false;
-      previewWindow.classList.remove('filter');
+      offFilter();
     }
   }
 
@@ -244,18 +235,30 @@ marked.setOptions({
 // filter
 filterButton.addEventListener('change', (e) => {
   if (e.target.checked) {
-    filterActiveButton.style.display = 'none';
-    filterNoActiveButton.style.display = 'block';
-    editInput.classList.add('filter');
-    editInput.readOnly = true;
-    previewWindow.classList.add('filter');
+    onFilter();
     filterStatusHandler.saveFilterStatus(true);
   } else {
-    filterNoActiveButton.style.display = 'none';
-    filterActiveButton.style.display = 'block';
+    offFilter();
     filterStatusHandler.saveFilterStatus(false);
-    editInput.classList.remove('filter');
-    editInput.readOnly = false;
-    previewWindow.classList.remove('filter');
   }
 });
+
+function onFilter() {
+  filterActiveButton.style.display = 'none';
+  filterNoActiveButton.style.display = 'block';
+  editInput.classList.add('filter');
+  editInput.readOnly = true;
+  previewWindow.classList.add('filter');
+  filterDisplay.style.display = 'block';
+  filterButton.checked = true;
+}
+
+function offFilter() {
+  filterNoActiveButton.style.display = 'none';
+  filterActiveButton.style.display = 'block';
+  editInput.classList.remove('filter');
+  editInput.readOnly = false;
+  previewWindow.classList.remove('filter');
+  filterDisplay.style.display = 'none';
+  filterButton.checked = false;
+}

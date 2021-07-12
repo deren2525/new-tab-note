@@ -169,6 +169,15 @@ blockquote p {
   box-sizing: border-box
 }
 
+.filter-display {
+  position: absolute;
+  top: 35px;
+  width: 100%;
+  height: calc(100% - 35px);
+  display: flex;
+  box-sizing: border-box
+}
+
 .mode-buttons {
   display: flex;
   align-items: center;
