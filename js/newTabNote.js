@@ -100,7 +100,20 @@ function setListPoint(regex, targetSentence, cursorPosition) {
   editInput.value = editInput.value.substr(0, cursorPosition) + "\n" + listPoint + editInput.value.substr(cursorPosition, editInput.value.length);
   editInput.focus();
   var newCaret = cursorPosition + "\n".length + listPoint.length;
+
+  // カーソル位置
   editInput.setSelectionRange(newCaret, newCaret);
+
+  // リスト入力リセット
+  const regexBlankList = /\n+\s*[*-]\s+\n*\s*?[*-]\s+\n*/;
+  const blankList = editInput.value.match(regexBlankList)
+  if(blankList) {
+    const idx = blankList.index
+    editInput.value = editInput.value.replace(blankList[0], '\n\n\n')
+    // カーソル位置
+    editInput.setSelectionRange(idx + 1, idx + 1);
+  }
+  saveToLocalStorage(editInput.value);
 }
 
 // Mode button
