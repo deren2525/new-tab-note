@@ -286,6 +286,11 @@ blockquote p {
   border: none;
 }
 
+.edit-input.edit-only {
+  padding-right: 20%;
+  padding-left: 20%; 
+}
+
 .edit-input.filter {
   filter: blur(5px);
 }
