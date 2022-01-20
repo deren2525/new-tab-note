@@ -286,7 +286,7 @@ blockquote p {
   border: none;
 }
 
-.edit-input.edit-only {
+.edit-window.edit-only {
   padding-right: 20%;
   padding-left: 20%; 
 }
