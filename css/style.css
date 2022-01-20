@@ -245,7 +245,7 @@ blockquote p {
   box-sizing: border-box;
   min-width: 50%;
   height: 100%;
-  padding: 80px 30px 30px;
+  padding: 50px 30px 30px;
   overflow: scroll
 }
 
@@ -316,6 +316,6 @@ blockquote p {
   display: none
 }
 
-.preview h1:first-child {
+.preview *:first-child {
   margin-top: 0
 }
