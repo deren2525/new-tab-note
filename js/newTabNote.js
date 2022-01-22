@@ -119,18 +119,21 @@ function setListPoint(regex, targetSentence, cursorPosition) {
 // Mode button
 modeEditButton.addEventListener("click", (e) => {
   editWindow.classList.remove("none");
+  editWindow.classList.add("edit-only");
   previewWindow.classList.add("none");
   modeHandler.saveMode("mode-edit");
   modeButtonStatus(e);
 });
 modeSplitButton.addEventListener("click", (e) => {
   editWindow.classList.remove("none");
+  editWindow.classList.remove("edit-only");
   previewWindow.classList.remove("none");
   modeHandler.saveMode("mode-split");
   modeButtonStatus(e);
 });
 modePreviewButton.addEventListener("click", (e) => {
   editWindow.classList.add("none");
+  editWindow.classList.remove("edit-only");
   previewWindow.classList.remove("none");
   modeHandler.saveMode("mode-preview");
   modeButtonStatus(e);
