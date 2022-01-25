@@ -1,60 +1,167 @@
 const initText = chrome.i18n.getMessage('InitText');
 // Input
-const editInput = document.getElementById("edit-input");
+const editInput = document.getElementById('edit-input');
 const editInputLineHeight = parseInt(editInput.style.lineHeight);
 // Window
-const editWindow = document.getElementById("edit-window");
-const previewWindow = document.getElementById("preview-window");
+const editWindow = document.getElementById('edit-window');
+const previewWindow = document.getElementById('preview-window');
 // Mode Buttons
-const modeButtons = Array.from(document.getElementsByClassName("mode-button"));
-const modeEditButton = document.getElementById("mode-edit");
-const modeSplitButton = document.getElementById("mode-split");
-const modePreviewButton = document.getElementById("mode-preview");
+const modeButtons = Array.from(document.getElementsByClassName('mode-button'));
+const modeEditButton = document.getElementById('mode-edit');
+const modeSplitButton = document.getElementById('mode-split');
+const modePreviewButton = document.getElementById('mode-preview');
 // Filter
-const filterDisplay = document.getElementById("filter-display");
-const filterButton = document.getElementById("filter-button");
-const filterActiveButton = document.getElementById("filter-active");
-const filterNoActiveButton = document.getElementById("filter-no-active");
+const filterDisplay = document.getElementById('filter-display');
+const filterButton = document.getElementById('filter-button');
+const filterActiveButton = document.getElementById('filter-active');
+const filterNoActiveButton = document.getElementById('filter-no-active');
+// Side Menu
+const sideButtons = Array.from(document.getElementsByClassName('side-button'));
+const sideFileButton = document.getElementById('side-file');
+const sideContentWindow = document.getElementById('side-bar-content');
+// Note
+const noteList = document.getElementById('note-list');
+const addNote = document.getElementById('add-note');
 
 window.onload = () => {
   const height = window.innerHeight - 70;
-  editInput.style.height = height + "px";
-  previewWindow.style.height = height + 35 + "px";
+  editInput.style.height = height + 'px';
+  previewWindow.style.height = height + 35 + 'px';
+  let notes = []
 
-  if (localStorage.hasOwnProperty("new_tab_note")) {
-    editInput.value = localStorage.getItem("new_tab_note").replace(/\s+$/, "");
-    previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note"));
+  if (localStorage.hasOwnProperty('new_tab_note:notes')) {
+    try {
+      notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+      const targetIndex = notes.findIndex(note => note.id === localStorage.getItem('new_tab_note:target_note_id'));
+      editInput.value = notes[targetIndex !== -1 ? targetIndex : 0].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(notes[targetIndex !== -1 ? targetIndex : 0].text);
+      localStorage.setItem('new_tab_note:target_note_id', notes[targetIndex !== -1 ? targetIndex : 0].id);
+    } catch {
+      const id = uuidv4();
+      notes.push({
+        id,
+        text: localStorage.getItem('new_tab_note:notes')
+      });
+      editInput.value = notes[0].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(notes[0].text);
+      localStorage.setItem('new_tab_note:notes', JSON.stringify(notes));
+      localStorage.setItem('new_tab_note:target_note_id', id);
+    } finally {
+      // 数ヶ月後にここの処理は削除する
+      localStorage.removeItem('new_tab_note');
+    }
   } else {
-    localStorage.setItem("new_tab_note_init", initText);
-    editInput.value = localStorage.getItem("new_tab_note_init");
-    previewWindow.innerHTML = marked(localStorage.getItem("new_tab_note_init"));
+    const id = uuidv4();
+    // new_tab_note:notesへ引越し作業
+    // 数ヶ月後にここの処理は削除する
+    if (localStorage.hasOwnProperty('new_tab_note')) {
+      notes.push({
+        id,
+        text: localStorage.getItem('new_tab_note')
+      });
+      localStorage.setItem('new_tab_note:notes', JSON.stringify(notes));
+
+      editInput.value = localStorage.getItem('new_tab_note').replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(localStorage.getItem('new_tab_note'));
+    } else {
+      notes.push({
+        id,
+        text: initText.replace(/\s+$/, '')
+      });
+      localStorage.setItem('new_tab_note:notes', JSON.stringify(notes));
+
+      editInput.value = notes[0].text;
+      previewWindow.innerHTML = marked(notes[0].text);
+    }
+    localStorage.setItem('new_tab_note:target_note_id', id);
+
+    localStorage.removeItem('new_tab_note_init');
+    localStorage.removeItem('new_tab_note');
   }
 
   modeHandler.setModeFromSavedMode();
-  filterStatusHandler.setFilterStatus()
+  filterStatusHandler.setFilterStatus();
+
+  // li作成
+  notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+  notes.forEach(note => {
+    createNoteList(note.id, note.text);
+  });
+
+  if (notes.length <= 1) {
+    document.getElementById(localStorage.getItem('new_tab_note:target_note_id')).classList.add('delete-disabled');
+  }
 };
 
-editInput.addEventListener("input", () => {
-  if (!localStorage.hasOwnProperty("new_tab_note")) {
-    localStorage.setItem("new_tab_note", "");
+editInput.addEventListener('input', () => {
+  if (!localStorage.hasOwnProperty('new_tab_note:notes')) {
+    const id = uuidv4();
+    localStorage.setItem('new_tab_note:notes', JSON.stringify([
+      {
+        id,
+        text: ''
+      }
+    ]));
+    localStorage.setItem('new_tab_note:target_note_id', id);
   }
   saveToLocalStorage(editInput.value);
+  const listItem = document.getElementById(localStorage.getItem('new_tab_note:target_note_id')).getElementsByTagName('p')[0];
+  listItem.innerHTML = (editInput.value.trim() || 'new note').substr(0, 20);
 
   // 改行でテキストエリア の高さ自動調整
-  const lines = (editInput.value + "\n").match(/\n/g).length;
+  const lines = (editInput.value + '\n').match(/\n/g).length;
   editInput.style.height = lines * editInputLineHeight;
 });
 
-// 他のタブが更新されたら現在のタブの表示も更新するように
-window.addEventListener("storage", (event) => {
-  if (event.key === "new_tab_note") {
-    const newVal = event.newValue
-    editInput.value = newVal.replace(/\s+$/, "");
-    previewWindow.innerHTML = marked(newVal);
-  }
-})
+// 他のタブが更新されたら現在のタブの情報も更新するように
+window.addEventListener('storage', (event) => {
+  // ノート内容
+  if (event.key === 'new_tab_note:notes') {
+    try {
+      const notes = JSON.parse(event.newValue);
+      const targetIndex = notes.findIndex(note => note.id === localStorage.getItem('new_tab_note:target_note_id'));
+      editInput.value = notes[targetIndex].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(notes[targetIndex].text);
 
-editInput.addEventListener("keydown", (e) => {
+      // リストの文言更新
+      const listItem = document.getElementById(localStorage.getItem('new_tab_note:target_note_id')).getElementsByTagName('p');
+      listItem.innerHTML = (notes[targetIndex].text.trim() || 'new note').substr(0, 20);
+    } catch {
+      editInput.value = event.newValue;
+      previewWindow.innerHTML = marked(event.newValue);
+    }
+    // フィルター
+  } else if (event.key === 'new_tab_note:filter') {
+    if (event.newValue === 'true') {
+      onFilter();
+    } else {
+      offFilter();
+    }
+    // 表示モード
+  } else if (event.key === 'new_tab_note:mode') {
+    if (event.newValue === 'mode-edit') {
+      editWindow.classList.remove('none');
+      editWindow.classList.add('edit-only');
+      previewWindow.classList.add('none');
+      modeHandler.saveMode('mode-edit');
+    } else if (event.newValue === 'mode-split') {
+      editWindow.classList.remove('none');
+      editWindow.classList.remove('edit-only');
+      previewWindow.classList.remove('none');
+      modeHandler.saveMode('mode-split');
+    } else if (event.newValue === 'mode-preview') {
+      editWindow.classList.add('none');
+      editWindow.classList.remove('edit-only');
+      previewWindow.classList.remove('none');
+      modeHandler.saveMode('mode-preview');
+    }
+    modeButtonStatus(event.newValue);
+  } else if (event.key === 'new_tab_note:target_note_id') {
+    changeNote(event.newValue);
+  }
+});
+
+editInput.addEventListener('keydown', (e) => {
   if (!e) return;
 
   // Tab
@@ -65,7 +172,7 @@ editInput.addEventListener("keydown", (e) => {
     // カーソルの左右の文字列を取得
     const cursorLeft = editInput.value.substr(0, cursorPosition);
     const cursorRight = editInput.value.substr(cursorPosition, editInput.value.length);
-    editInput.value = cursorLeft + "  " + cursorRight;
+    editInput.value = cursorLeft + '  ' + cursorRight;
     // カーソルの位置を入力したタブの後ろにする
     editInput.selectionEnd = cursorPosition + 2;
     saveToLocalStorage(editInput.value);
@@ -77,7 +184,7 @@ editInput.addEventListener("keydown", (e) => {
     const cursorPosition = editInput.selectionStart;
     // カーソル位置までの文字を取得
     const text = editInput.value.substr(0, cursorPosition);
-    const targetSentence = text.split("\n").pop();
+    const targetSentence = text.split('\n').pop();
 
     // list
     const regexList = /^[*-]\s+/;
@@ -97,9 +204,9 @@ editInput.addEventListener("keydown", (e) => {
 
 function setListPoint(regex, targetSentence, cursorPosition) {
   const listPoint = targetSentence.match(regex)[0];
-  editInput.value = editInput.value.substr(0, cursorPosition) + "\n" + listPoint + editInput.value.substr(cursorPosition, editInput.value.length);
+  editInput.value = editInput.value.substr(0, cursorPosition) + '\n' + listPoint + editInput.value.substr(cursorPosition, editInput.value.length);
   editInput.focus();
-  var newCaret = cursorPosition + "\n".length + listPoint.length;
+  var newCaret = cursorPosition + '\n'.length + listPoint.length;
 
   // カーソル位置
   editInput.setSelectionRange(newCaret, newCaret);
@@ -107,7 +214,7 @@ function setListPoint(regex, targetSentence, cursorPosition) {
   // リスト入力リセット
   const regexBlankList = /\n+\s*[*-]\s+\n*\s*?[*-]\s+\n*/;
   const blankList = editInput.value.match(regexBlankList)
-  if(blankList) {
+  if (blankList) {
     const idx = blankList.index
     editInput.value = editInput.value.replace(blankList[0], '\n\n\n')
     // カーソル位置
@@ -117,54 +224,65 @@ function setListPoint(regex, targetSentence, cursorPosition) {
 }
 
 // Mode button
-modeEditButton.addEventListener("click", (e) => {
-  editWindow.classList.remove("none");
-  previewWindow.classList.add("none");
-  modeHandler.saveMode("mode-edit");
-  modeButtonStatus(e);
+modeEditButton.addEventListener('click', (e) => {
+  editWindow.classList.remove('none');
+  editWindow.classList.add('edit-only');
+  previewWindow.classList.add('none');
+  modeHandler.saveMode('mode-edit');
+  modeButtonStatus(e.target.id);
 });
-modeSplitButton.addEventListener("click", (e) => {
-  editWindow.classList.remove("none");
-  previewWindow.classList.remove("none");
-  modeHandler.saveMode("mode-split");
-  modeButtonStatus(e);
+modeSplitButton.addEventListener('click', (e) => {
+  editWindow.classList.remove('none');
+  editWindow.classList.remove('edit-only');
+  previewWindow.classList.remove('none');
+  modeHandler.saveMode('mode-split');
+  modeButtonStatus(e.target.id);
 });
-modePreviewButton.addEventListener("click", (e) => {
-  editWindow.classList.add("none");
-  previewWindow.classList.remove("none");
-  modeHandler.saveMode("mode-preview");
-  modeButtonStatus(e);
+modePreviewButton.addEventListener('click', (e) => {
+  editWindow.classList.add('none');
+  editWindow.classList.remove('edit-only');
+  previewWindow.classList.remove('none');
+  modeHandler.saveMode('mode-preview');
+  modeButtonStatus(e.target.id);
 });
 
-function modeButtonStatus(e) {
+function modeButtonStatus(id) {
   modeButtons.forEach((buttonLabel) => {
-    if (buttonLabel.htmlFor === e.target.id) {
-      buttonLabel.classList.add("active");
+    if (buttonLabel.htmlFor === id) {
+      buttonLabel.classList.add('active');
     } else {
-      buttonLabel.classList.remove("active");
+      buttonLabel.classList.remove('active');
     }
   });
 }
 
 function saveToLocalStorage(value) {
+  const notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+
+  // 現在選択ページに格納
+  const targetIndex = notes.findIndex(note => note.id === localStorage.getItem('new_tab_note:target_note_id'));
+  if (targetIndex === -1) return;
+  notes[targetIndex].text = value;
+
   // ローカルストレージに保存
-  localStorage.setItem("new_tab_note", value);
+  localStorage.setItem('new_tab_note:notes', JSON.stringify(notes));
+
   // マークダウンに変換
-  convertedText = marked(value);
+  const convertedText = marked(value);
   // - [] , - [x] をチェックボックス変換
   previewWindow.innerHTML = convertedText.replace(
     /\[x\]/g,
-    '<input type="checkbox" checked="checked">'
+    "<input type='checkbox' checked='checked'>"
   );
   previewWindow.innerHTML = convertedText.replace(
     /\[ \]/g,
-    '<input type="checkbox">'
+    "<input type='checkbox'>"
   );
 }
 
 // モード状態の保持
 const createModeHandler = () => {
-  const MODE_KEY = "new_tab_note:mode";
+  const MODE_KEY = 'new_tab_note:mode';
 
   const getSavedMode = () => {
     if (localStorage.hasOwnProperty(MODE_KEY)) {
@@ -173,7 +291,7 @@ const createModeHandler = () => {
     return null;
   }
 
-  // modeには"mode-edit", "mode-split", "mode-preview"を使う
+  // modeには'mode-edit', 'mode-split', 'mode-preview'を使う
   const saveMode = (mode) => {
     localStorage.setItem(MODE_KEY, mode);
   }
@@ -198,7 +316,7 @@ const modeHandler = createModeHandler();
 
 // フィルター状態の保持
 const createFilterStatusHandler = () => {
-  const FILTER_KEY = "new_tab_note:filter";
+  const FILTER_KEY = 'new_tab_note:filter';
 
   const getSavedFilterStatus = () => {
     if (localStorage.hasOwnProperty(FILTER_KEY)) {
@@ -228,21 +346,20 @@ const createFilterStatusHandler = () => {
 
 const filterStatusHandler = createFilterStatusHandler();
 
-
 // Window risize
 window.addEventListener(
-  "resize",
+  'resize',
   function () {
     const height = window.innerHeight - 35;
-    editInput.style.height = height + "px";
-    previewWindow.style.height = height + 35 + "px";
+    editInput.style.height = height + 'px';
+    previewWindow.style.height = height + 35 + 'px';
   },
   false
 );
 
 marked.setOptions({
   breaks: true,
-  langPrefix: "",
+  langPrefix: '',
 });
 
 // filter
@@ -274,4 +391,127 @@ function offFilter() {
   previewWindow.classList.remove('filter');
   filterDisplay.style.display = 'none';
   filterButton.checked = false;
+}
+
+// Side button
+sideFileButton.addEventListener('click', (e) => {
+  if (sideContentWindow.classList.contains('none')) {
+    sideContentWindow.classList.remove('none');
+  } else {
+    sideContentWindow.classList.add('none');
+  }
+  sideButtonStatus(e.target.id);
+});
+
+function sideButtonStatus(id) {
+  sideButtons.forEach((buttonLabel) => {
+    if (buttonLabel.htmlFor === id) {
+      buttonLabel.classList.add('active');
+    } else {
+      buttonLabel.classList.remove('active');
+    }
+  });
+};
+
+addNote.addEventListener('click', () => {
+  const notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+  const newId = uuidv4();
+  notes.push({
+    id: newId,
+    text: ''
+  });
+
+  document.getElementById(notes[0].id).classList.remove('delete-disabled');
+
+  localStorage.setItem('new_tab_note:notes', JSON.stringify(notes));
+
+  createNoteList(newId, '');
+  document.getElementById(newId).getElementsByTagName('p')[0].click();
+});
+
+// ノート選択
+function changeNote(id) {
+  const noteListItem = Array.from(document.getElementsByClassName('note-list__item'));
+
+  const notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+  const targetIndex = notes.findIndex(note => note.id === id);
+
+  if (targetIndex === -1) return;
+  localStorage.setItem('new_tab_note:target_note_id', id);
+  noteListItem.forEach((note) => note.classList.remove('active'));
+
+  noteListItem[targetIndex].classList.add('active');
+  editInput.value = notes[targetIndex].text ? notes[targetIndex].text.replace(/\s+$/, '') : '';
+  previewWindow.innerHTML = marked(notes[targetIndex].text);
+}
+
+// uuid生成
+function uuidv4() {
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+};
+
+// <li>作成
+function createNoteList(id, text) {
+  const listItem = document.createElement('li');
+  listItem.setAttribute('id', id);
+  listItem.setAttribute('class', 'note-list__item');
+  noteList.appendChild(listItem).addEventListener('click', (e) => {
+    changeNote(e.target.parentElement.id);
+  });
+
+  const textItem = document.createElement('p');
+  listItem.appendChild(textItem).innerHTML = (text.trim() || 'new note').substr(0, 20);
+
+  const deleteItem = document.createElement('span');
+  listItem.appendChild(deleteItem).addEventListener('click', (e) => deleteNote(e.target.parentElement.id));
+
+  if (id === localStorage.getItem('new_tab_note:target_note_id')) {
+    listItem.classList.add('active');
+  }
+}
+
+// ノート削除
+function deleteNote(id) {
+  const notes = JSON.parse(localStorage.getItem('new_tab_note:notes'));
+  if (notes.length <= 1) return;
+
+  if (window.confirm(chrome.i18n.getMessage('ConfirmDeleteNote'))) {
+    const targetIndex = notes.findIndex(note => note.id === id);
+
+    const remainNotes = notes.filter(note => note.id !== id);
+    // ストレージ更新
+    localStorage.setItem('new_tab_note:notes', JSON.stringify(remainNotes));
+
+    // li削除
+    document.getElementById(id).remove();
+    const noteListItem = Array.from(document.getElementsByClassName('note-list__item'));
+    noteListItem.forEach((note) => note.classList.remove('active'));
+
+    // 削除後に表示するノート
+    if (remainNotes[targetIndex]) {
+      localStorage.setItem('new_tab_note:target_note_id', remainNotes[targetIndex].id);
+      noteListItem[targetIndex].classList.add('active');
+
+      editInput.value = remainNotes[targetIndex].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(remainNotes[targetIndex].text);
+    } else if (remainNotes[targetIndex - 1]) {
+      localStorage.setItem('new_tab_note:target_note_id', remainNotes[targetIndex - 1].id);
+      noteListItem[targetIndex - 1].classList.add('active');
+
+      editInput.value = remainNotes[targetIndex - 1].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(remainNotes[targetIndex - 1].text);
+    } else {
+      localStorage.setItem('new_tab_note:target_note_id', remainNotes[0].id);
+      noteListItem[0].classList.add('active');
+
+      editInput.value = remainNotes[0].text.replace(/\s+$/, '');
+      previewWindow.innerHTML = marked(remainNotes[0].text);
+    }
+
+    if (remainNotes.length <= 1) {
+      document.getElementById(remainNotes[0].id).classList.add('delete-disabled');
+    }
+  }
 }
