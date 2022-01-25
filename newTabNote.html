@@ -11,7 +11,7 @@
 
 <body>
   <div class="navbar">
-    <div class="navbar-inner">
+    <div class="navbar__inner">
       <div class="mode-buttons">
         <label class="mode-button" for="mode-edit" title="edit">
           <input type="radio" id="mode-edit" name="mode" autocomplete="off" />
@@ -49,7 +49,7 @@
           </svg>
         </label>
       </div>
-      <div class="right-menu">
+      <div class="navbar__right-menu">
         <input type="checkbox" name="mode" autocomplete="off" id="filter-button" />
         <label class="filter-button" for="filter-button" title="filter-button">
           <div id="filter-active">
@@ -74,13 +74,32 @@
     </div>
   </div>
   <div class="container">
-    <div id="edit-window" class="edit-window edit none">
-      <textarea style="line-height: 1.5;height: 0px;" id="edit-input" class="edit-input" name="kanso" rows="4"
-        cols="40"></textarea>
+    <div id="side-bar-content" class="side-bar-content none">
+      <ul id="note-list" class="note-list"></ul>
+
+      <div id="add-note" class="add-note">
+        ＋
+      </div>
     </div>
-    <div id="preview-window" class="preview"></div>
+    <div class="content">
+      <div id="edit-window" class="edit-window edit none">
+        <textarea style="line-height: 1.5;height: 0px;" id="edit-input" class="edit-input" name="kanso" rows="4"
+          cols="40"></textarea>
+      </div>
+      <div id="preview-window" class="preview"></div>
+      <div id="filter-display" class="filter-display"></div>
+    </div>
   </div>
-  <div id="filter-display" class="filter-display"></div>
+  <div class="side-bar">
+    <label class="side-button active" for="side-file" title="file">
+      <input type="checkbox" id="side-file" name="side" autocomplete="off" checked />
+      <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M74.75 0H37.25L31 6.25V25H12.25L6 31.25V94.0417L12.25 100H62.5417L68.5 94.0417V75H88.0833L93.5 69.0417V18.75L74.75 0ZM74.75 8.83333L84.6667 18.75H74.75V8.83333ZM62.25 93.75H12.25V31.25H31V69.0417L37.25 75H62.25V93.75ZM87.25 68.75H37.25V6.25H68.5V25H87.25V68.75Z"
+          fill="#B9B9B9" />
+      </svg>
+    </label>
+  </div>
   <script src="js/lib/marked.js"></script>
   <script src="js/newTabNote.js"></script>
 </body>
