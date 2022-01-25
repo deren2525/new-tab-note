@@ -5,6 +5,14 @@ $COLOR_TEXT_BLACK: #2D2D2D;
 $COLOR_BG_CODE: rgba(0, 0, 0, .05);
 $COLOR_BG_BLOBKQUOTE: rgba(102, 128, 153, .05);
 $COLOR_BORDER: rgba(102, 128, 153, .075);
+$COLOR_DISABLED: #B9B9B9;
+
+$COLOR_BG_SIDE_BAR: #E6E6E6;
+$COLOR_LIST_ACTIVE: #248888;
+$COLOR_HOVER_LIST: #CCCCCC;
+
+// size
+$SIDE_BAR_WIDTH: 50px;
 
 @font-face {
   font-family: Lato-Regular;
@@ -163,21 +171,37 @@ blockquote {
   height: 35px;
   background: $COLOR_BLACK;
   z-index: 100;
-}
 
-.navbar-inner {
-  display: flex;
-  width: 50%;
-  height: 100%;
-  padding: 0 30px;
-  box-sizing: border-box;
+  &__inner {
+    display: flex;
+    width: 50%;
+    height: 100%;
+    padding: 0 $SIDE_BAR_WIDTH;
+    box-sizing: border-box;
+  }
+
+  &__right-menu {
+    display: flex;
+    align-items: center;
+    height: 35px;
+    margin-left: auto;
+  }
 }
 
 .container {
   position: relative;
   top: 35px;
+  display: flex;
   width: 100%;
   height: calc(100% - 35px);
+  box-sizing: border-box;
+  padding-left: $SIDE_BAR_WIDTH;
+}
+
+.content {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: flex;
   box-sizing: border-box;
 }
@@ -212,7 +236,8 @@ blockquote {
 }
 
 .filter-button,
-.mode-button {
+.mode-button,
+.side-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,13 +269,6 @@ blockquote {
     display: flex;
     height: 100%;
   }
-}
-
-.right-menu {
-  display: flex;
-  align-items: center;
-  height: 35px;
-  margin-left: auto;
 }
 
 .preview {
@@ -336,5 +354,169 @@ blockquote {
 
   &.filter {
     filter: blur(5px);
+  }
+}
+
+.side-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: $SIDE_BAR_WIDTH;
+  height: 100vh;
+  background: $COLOR_BLACK;
+  padding-top: 40px;
+
+  input {
+    position: absolute;
+    clip: rect(0, 0, 0, 0);
+    pointer-events: none;
+
+  }
+}
+
+.side-button {
+  width: 50px;
+  height: 50px;
+
+  svg {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.side-bar-content {
+  min-width: 170px;
+  height: 100%;
+  margin: 0;
+  padding-bottom: 30px;
+  overflow: auto;
+  box-sizing: border-box;
+  background: $COLOR_BG_SIDE_BAR;
+  &.none {
+    display: none;
+  }
+}
+
+.note-list {
+  width: 170px;
+  padding: 0;
+  &__item {
+    position: relative;
+    width: 130px;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:hover {
+      background: $COLOR_HOVER_LIST;
+
+      span {
+        background: $COLOR_HOVER_LIST;
+      }
+    }
+
+    &.active {
+      p {
+        background: $COLOR_BLACK;
+        color: $COLOR_WHITE;
+      }
+
+      &:hover {
+        p {
+          background: $COLOR_LIST_ACTIVE;
+        }
+
+        span {
+          background: $COLOR_LIST_ACTIVE;
+        }
+      }
+    }
+
+    &.delete-disabled {
+      span {
+        display: none;
+      }
+
+      p {
+        &:hover {
+          + span {
+            display: none;
+          }
+        }
+      }
+    }
+
+    p {
+      width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-size: 14px;
+      margin: 0;
+      padding: 10px;
+
+      &:hover {
+        + span {
+          display: block;
+          background: COLOR_HOVER_LIST;
+        }
+      }
+    }
+
+    span {
+      display: none;
+      position: absolute;
+      top: 0;
+      right: -40px;
+      width: 40px;
+      height: 100%;
+      z-index: 10;
+
+      &::before,
+      &::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 2px;
+        height: 20px;
+        background: $COLOR_BLACK;
+        border-radius: 10px;
+      }
+
+      &::before {
+        transform: translate(-50%,-50%) rotate(45deg);
+      }
+
+      &::after {
+        transform: translate(-50%,-50%) rotate(-45deg);
+      }
+
+      &:hover {
+        display: block;
+      }
+    }
+  }
+}
+
+.add-note {
+  text-align: center;
+  width: 30px;
+  height: 30px;
+  background: $COLOR_BLACK;
+  color: $COLOR_WHITE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: auto;
+  cursor: pointer;
+
+  .disabled {
+    cursor: default;
+    background: $COLOR_DISABLED;
+  }
+
+  &:hover {
+    opacity: 0.8;
   }
 }
