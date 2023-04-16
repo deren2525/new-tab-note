@@ -14,3 +14,4 @@
 - リロードしても消えないです
 
 バグの報告や改善案ご要望など大募集です。[こちら](https://github.com/deren2525/new-tab-note/issues/new/choose)からお願いします！
+# new-tab-note-page
