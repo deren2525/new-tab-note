@@ -1,0 +1,7 @@
+body {
+  @apply w-full bg-bg_primary p-0 m-0 box-border;
+}
+
+p {
+  @apply text-text_primary text-[14px];
+}

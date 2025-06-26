@@ -4,16 +4,11 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        white: "#FFF",
-        black: "#2C2C2C",
-        text_black: "#2D2D2D",
-        bg_code: "rgba(0,0,0,0.05)",
-        bg_blockquote: "rgba(102,128,153,0.05)",
-        border: "rgba(102,128,153,0.075)",
-        disabled: "#B9B9B9",
-        sidebar: "#E6E6E6",
-        list_active: "#248888",
-        list_hover: "#CCCCCC",
+        bg_primary: "#181818",
+        border_primary: "#2B2B2B",
+        icon_primary: "#D7D7D7",
+        text_primary: "#FFFFFF",
+        text_link: "#4DAAFC",
       },
     },
   },
