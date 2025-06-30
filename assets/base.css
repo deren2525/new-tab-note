@@ -1,7 +1,75 @@
+html,
 body {
-  @apply w-full bg-bg_primary p-0 m-0 box-border;
+  @apply w-full h-full box-border m-0 p-0 text-text_primary;
 }
-
+* {
+  @apply leading-relaxed outline-none;
+  font-size: 1.4;
+}
+htnl {
+  font-size: 62.5%;
+}
+body {
+  @apply bg-bg_primary font-jp text-text_primary relative;
+}
 p {
-  @apply text-text_primary text-[14px];
+  @apply text-text_primary text-body;
+}
+.c-preview h1 {
+  @apply relative text-h1 font-bold mt-6 mb-[16px];
+}
+.c-preview h1::after {
+  content: '';
+  @apply block border-b border-border_primary relative;
+  top: 0.5rem;
+}
+.c-preview h2 {
+  @apply relative text-h2 font-bold mt-[20px] mb-[12px];
+}
+.c-preview h2::after {
+  content: '';
+  @apply block border-b border-border_primary relative;
+  top: 0.5rem;
+}
+.c-preview h3 {
+  @apply text-h3 font-bold mt-[20px] mb-[8px];
+}
+.c-preview h4 {
+  @apply text-h4 font-bold mt-[16px] mb-[8px];
+}
+.c-preview h5 {
+  @apply text-h5 font-bold mt-[16px] mb-[8px];
+}
+.c-preview h6 {
+  @apply text-h6 font-bold mt-[16px] mb-[8px];
+}
+.c-preview p {
+  @apply my-[12px] text-base;
+}
+/* コード・ブロック */
+.c-preview pre code {
+  @apply block bg-bg_primary p-[16px] overflow-x-auto whitespace-pre font-robotoMono;
+}
+/* blockquote */
+.c-preview blockquote {
+  @apply border-l-[10px] rounded-tr-[5px] rounded-br-[5px] p-[16px] my-[16px] bg-bg_blockquote border-border_blockquote;
+}
+.c-preview blockquote p {
+  @apply my-0;
+}
+.c-preview ul,
+.c-preview ol {
+  @apply pl-8 my-3;
+}
+.c-preview ul {
+  @apply list-disc;
+}
+.c-preview ol {
+  @apply list-decimal;
+}
+/* strong, b */
+.c-preview strong,
+.c-preview b {
+  font-family: 'Lato-Bold', theme('fontFamily.sans', 'sans-serif');
+  font-weight: 900;
 }
