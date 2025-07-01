@@ -1,3 +1,9 @@
+@layer utilities {
+  .break-anywhere {
+    overflow-wrap: anywhere;
+  }
+}
+
 html,
 body {
   @apply w-full h-full box-border m-0 p-0 text-text_primary;
@@ -6,17 +12,19 @@ body {
   @apply leading-relaxed outline-none;
   font-size: 1.4;
 }
-htnl {
-  font-size: 62.5%;
-}
 body {
   @apply bg-bg_primary font-jp text-text_primary relative;
 }
-p {
+p,
+span,
+input {
   @apply text-text_primary text-body;
 }
+button {
+  @apply hover:opacity-80;
+}
 .c-preview h1 {
-  @apply relative text-h1 font-bold mt-6 mb-[16px];
+  @apply relative text-h1 font-bold mt-6 mb-[16px] break-anywhere;
 }
 .c-preview h1::after {
   content: '';
@@ -24,7 +32,7 @@ p {
   top: 0.5rem;
 }
 .c-preview h2 {
-  @apply relative text-h2 font-bold mt-[20px] mb-[12px];
+  @apply relative text-h2 font-bold mt-[20px] mb-[12px] break-anywhere;
 }
 .c-preview h2::after {
   content: '';
@@ -32,30 +40,33 @@ p {
   top: 0.5rem;
 }
 .c-preview h3 {
-  @apply text-h3 font-bold mt-[20px] mb-[8px];
+  @apply text-h3 font-bold mt-[20px] mb-[8px] break-anywhere;
 }
 .c-preview h4 {
-  @apply text-h4 font-bold mt-[16px] mb-[8px];
+  @apply text-h4 font-bold mt-[16px] mb-[8px] break-anywhere;
 }
 .c-preview h5 {
-  @apply text-h5 font-bold mt-[16px] mb-[8px];
+  @apply text-h5 font-bold mt-[16px] mb-[8px] break-anywhere;
 }
 .c-preview h6 {
-  @apply text-h6 font-bold mt-[16px] mb-[8px];
+  @apply text-h6 font-bold mt-[16px] mb-[8px] break-anywhere;
 }
 .c-preview p {
-  @apply my-[12px] text-base;
+  @apply my-[12px] text-base break-anywhere;
+}
+.c-preview pre {
+  max-width: calc(50svw - 32px - 24px);
 }
 /* コード・ブロック */
 .c-preview pre code {
-  @apply block bg-bg_primary p-[16px] overflow-x-auto whitespace-pre font-robotoMono;
+  @apply block bg-bg_primary p-[16px] overflow-x-auto whitespace-pre font-robotoMono break-anywhere;
 }
 /* blockquote */
 .c-preview blockquote {
-  @apply border-l-[10px] rounded-tr-[5px] rounded-br-[5px] p-[16px] my-[16px] bg-bg_blockquote border-border_blockquote;
+  @apply border-l-[10px] rounded-tr-[5px] rounded-br-[5px] p-[16px] my-[16px] bg-bg_blockquote border-border_blockquote break-anywhere;
 }
 .c-preview blockquote p {
-  @apply my-0;
+  @apply my-0 break-anywhere;
 }
 .c-preview ul,
 .c-preview ol {
@@ -66,6 +77,9 @@ p {
 }
 .c-preview ol {
   @apply list-decimal;
+}
+.c-preview li {
+  @apply break-anywhere;
 }
 /* strong, b */
 .c-preview strong,
