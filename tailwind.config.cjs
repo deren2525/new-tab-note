@@ -14,11 +14,12 @@ module.exports = {
         bg_blockquote: 'var(--bg_blockquote)',
         bg_active: 'var(--bg_active)',
         bg_delete: 'var(--bg_delete)',
-        bg_bottom_primary: 'var(--bg_bottom_primary)',
+        bg_button_primary: 'var(--bg_button_primary)',
         border_primary: 'var(--border_primary)',
         border_blockquote: 'var(--border_blockquote)',
         icon_primary: 'var(--icon_primary)',
         text_primary: 'var(--text_primary)',
+        text_button_primary: 'var(--text_button_primary)',
         text_link: 'var(--text_link)',
       },
       fontSize: {

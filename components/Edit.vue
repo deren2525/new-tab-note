@@ -5,7 +5,7 @@
         >Edit</span
       >
       <div class="flex">
-        <button class="flex p-[8px] hover:opacity-80" @click="handleFilter(props.isFilter)">
+        <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
           <svg
             v-if="isFilter"
             width="16"
@@ -16,28 +16,28 @@
           >
             <path
               d="M13 10.6667L11.3499 8.40253"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <path
               d="M8 11.6666V9.33331"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <path
               d="M3 10.6667L4.64597 8.40826"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <path
               d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -53,15 +53,15 @@
           >
             <path
               d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <path
               d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
-              fill="#D7D7D7"
-              stroke="#D7D7D7"
+              fill="currentColor"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -70,7 +70,7 @@
         </button>
         <button
           v-if="!isPreviewMode"
-          class="flex p-[8px] hover:opacity-80"
+          class="flex p-[8px] text-icon_primary"
           @click="handleOpenPreview"
         >
           <svg
@@ -82,20 +82,20 @@
           >
             <path
               d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
             />
             <path
               d="M8 2.5L8 14.5"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
             />
             <path
               d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
-              stroke="#D7D7D7"
+              stroke="currentColor"
               stroke-width="1.5"
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -114,7 +114,7 @@
       />
       <div
         v-if="props.isFilter"
-        class="absolute inset-0 z-10 bg-black/20 pointer-events-auto"
+        class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto"
         style="backdrop-filter: blur(5px)"
       ></div>
     </div>

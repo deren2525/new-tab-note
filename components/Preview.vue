@@ -22,10 +22,7 @@
         </button>
       </span>
       <div class="flex">
-        <button
-          class="flex p-[8px] hover:opacity-80 text-icon_primary"
-          @click="handleRemovePreview"
-        >
+        <button class="flex p-[8px] text-icon_primary" @click="handleRemovePreview">
           <svg
             width="16"
             height="17"
@@ -65,7 +62,7 @@
       <div v-html="renderedHtml"></div>
       <div
         v-if="props.isFilter"
-        class="absolute inset-0 z-10 bg-black/20 pointer-events-auto"
+        class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto"
         style="backdrop-filter: blur(5px)"
       ></div>
     </div>

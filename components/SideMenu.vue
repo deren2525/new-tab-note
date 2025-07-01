@@ -8,7 +8,7 @@
       class="p-[12px] border-b border-border_primary flex"
       :class="[isOpenMenu ? 'justify-end' : 'justify-center']"
     >
-      <button @click="isOpenMenu = !isOpenMenu">
+      <button @click="isOpenMenu = !isOpenMenu" class="text-icon_primary">
         <svg
           width="20"
           height="20"
@@ -24,13 +24,13 @@
         </svg>
       </button>
     </div>
-    <div class="flex h-full border-r border-border_primary flex-col">
+    <div class="flex h-full flex-col">
       <!-- menu open -->
       <div v-if="isOpenMenu" class="flex-1 flex flex-col">
         <div class="mb-[8px] border-b border-border_primary p-[8px]">
           <!-- create note -->
           <button
-            class="flex gap-[8px] p-[8px] bg-bg_bottom_primary w-full rounded-[4px] items-center text-icon_primary"
+            class="flex gap-[8px] p-[8px] bg-bg_button_primary w-full rounded-[4px] items-center text-text_button_primary"
             @click="handleCreateNote"
           >
             <svg
@@ -78,7 +78,7 @@
               {{ (menu.text.trim() || 'new note').substring(0, 25) }}
               <button
                 v-if="menu.id === props.currentNoteId"
-                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[25px] text-icon_primary"
+                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[25px] text-text_button_primary"
                 @click.stop="handleDeleteNote(menu.id)"
                 title="Delete"
                 tabindex="-1"
@@ -114,7 +114,7 @@
         <!-- new note button -->
         <div class="flex items-center justify-center">
           <button
-            class="p-[8px] bg-bg_bottom_primary rounded-[4px] text-icon_primary"
+            class="p-[8px] bg-bg_button_primary rounded-[4px] text-text_button_primary"
             @click="handleCreateNote"
           >
             <svg

@@ -1,6 +1,10 @@
 <template>
   <div class="min-h-screen w-full box-border text-text_black font-jp">
-    <Header />
+    <Header
+      @change-theme="changeTheme"
+      :current-theme-color="theme"
+      :theme-options="themeOptions"
+    />
     <div class="w-full h-[calc(100svh-35px)] flex">
       <SideMenu
         :menus="notes"
@@ -43,30 +47,50 @@ import Edit from '@/components/Edit.vue'
 import Preview from '@/components/Preview.vue'
 import EmptyState from '@/components/EmptyState.vue'
 
-interface Note {
+type Note = {
   id: string
   text: string
 }
+type Theme = (typeof themeOptions)[number]['name']
 
 const notes = ref<Note[]>([])
 const currentId = ref<string>('')
-const currentText = ref<string>('')
 const isFilter = ref<boolean>(false)
 const isPreviewMode = ref<boolean>(false)
 const text = ref<string>('')
+
+const themeOptions = [
+  { name: 'Dark', color: '#181818', border: '#2b2b2b' },
+  { name: 'Light', color: '#ffffff', border: '#d0d0d0' },
+  { name: 'Solarized', color: '#073642', border: '#b58900' },
+  { name: 'Mono', color: '#f9f9f9', border: '#000000' },
+  { name: 'Sky', color: '#eef3f8', border: '#c5d2de' },
+  { name: 'Cobalt', color: '#111827', border: '#334155' },
+  { name: 'Honey', color: '#ffeede', border: '#fcd34d' },
+  { name: 'Lavender', color: '#ede4fb', border: '#d8b4fe' },
+  { name: 'Sepia', color: '#eee4d4', border: '#c0ae98' },
+  { name: 'Mint', color: '#d1fae5', border: '#5eead4' },
+  { name: 'Forest', color: '#1c2e28', border: '#264339' },
+  { name: 'Rose', color: '#ffe4e6', border: '#fbcfe8' },
+  { name: 'Neon', color: '#141414', border: '#39ff14' },
+  { name: 'Aubergine', color: '#291626', border: '#e95420' },
+]
+
+const theme = ref<Theme>('dark')
 
 const STORAGE_KEY_NOTES = 'new_tab_note:notes'
 const STORAGE_KEY_TARGET_ID = 'new_tab_note:target_note_id'
 const FILTER_KEY = 'new_tab_note:filter'
 const PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
+const THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const INIT_TEXT = enMessages.InitText.message
 
 // 初期化
 onMounted(() => {
-  console.log('mounted')
   const savedNotes = localStorage.getItem(STORAGE_KEY_NOTES)
   isPreviewMode.value = localStorage.getItem(PREVIEW_MODE_KEY) === 'true'
   isFilter.value = localStorage.getItem(FILTER_KEY) === 'true'
+  theme.value = localStorage.getItem(THEME_COLOR_KEY) || 'dark'
   if (savedNotes) {
     notes.value = JSON.parse(savedNotes)
   } else {
@@ -136,6 +160,10 @@ const changeNote = (id: string) => {
   currentId.value = id
 }
 
+const changeTheme = (colorName: string) => {
+  theme.value = colorName
+}
+
 watch(text, (val) => {
   // テキスト変更時に即保存
   const idx = notes.value.findIndex((n) => n.id === currentId.value)
@@ -156,6 +184,10 @@ watch(isPreviewMode, (val) => {
 })
 watch(isFilter, (val) => {
   localStorage.setItem(FILTER_KEY, val ? 'true' : 'false')
+})
+watch(theme, (val) => {
+  document.documentElement.setAttribute('data-theme', val)
+  localStorage.setItem(THEME_COLOR_KEY, val)
 })
 </script>
 
