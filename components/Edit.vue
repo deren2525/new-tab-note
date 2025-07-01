@@ -5,7 +5,7 @@
         >Edit</span
       >
       <div class="flex">
-        <div class="relative">
+        <div class="relative flex">
           <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
             <svg
               v-if="isFilter"
@@ -70,7 +70,7 @@
             </svg>
           </button>
           <button
-            v-if="!isPreviewMode"
+            v-if="!props.isPreviewMode"
             class="flex p-[8px] text-icon_primary"
             @click="handleOpenPreview"
           >
@@ -105,16 +105,13 @@
           </button>
           <div
             v-if="showTooltip"
-            class="absolute z-20 top-full left-1/2 -translate-x-1/2 mt-[10px] w-[230px]"
+            class="absolute z-20 top-full mt-[10px] w-[230px]"
+            :class="[props.isPreviewMode ? 'left-1/2 -translate-x-1/2' : 'right-[16px] ']"
           >
             <div
               class="relative bg-bg_primary text-text_primary text-body rounded px-[12px] py-[8px]"
             >
               <p>編集を再開するにはフィルターを解除してください</p>
-              <!-- 上向き三角形 -->
-              <div
-                class="absolute top-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-bg_primary"
-              ></div>
             </div>
           </div>
         </div>
