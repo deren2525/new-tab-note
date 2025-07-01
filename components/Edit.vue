@@ -5,103 +5,119 @@
         >Edit</span
       >
       <div class="flex">
-        <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
-          <svg
-            v-if="isFilter"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+        <div class="relative">
+          <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
+            <svg
+              v-if="isFilter"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13 10.6667L11.3499 8.40253"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 11.6666V9.33331"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3 10.6667L4.64597 8.40826"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <svg
+              v-else
+              width="16"
+              height="17"
+              viewBox="0 0 16 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
+                fill="currentColor"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            v-if="!isPreviewMode"
+            class="flex p-[8px] text-icon_primary"
+            @click="handleOpenPreview"
           >
-            <path
-              d="M13 10.6667L11.3499 8.40253"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M8 11.6666V9.33331"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M3 10.6667L4.64597 8.40826"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-          <svg
-            v-else
-            width="16"
-            height="17"
-            viewBox="0 0 16 17"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
+            <svg
+              width="16"
+              height="17"
+              viewBox="0 0 16 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 2.5L8 14.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <div
+            v-if="showTooltip"
+            class="absolute z-20 top-full left-1/2 -translate-x-1/2 mt-[10px] w-[230px]"
           >
-            <path
-              d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
-              fill="currentColor"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-        <button
-          v-if="!isPreviewMode"
-          class="flex p-[8px] text-icon_primary"
-          @click="handleOpenPreview"
-        >
-          <svg
-            width="16"
-            height="17"
-            viewBox="0 0 16 17"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-            <path
-              d="M8 2.5L8 14.5"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-            <path
-              d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
+            <div
+              class="relative bg-bg_primary text-text_primary text-body rounded px-[12px] py-[8px]"
+            >
+              <p>編集を再開するにはフィルターを解除してください</p>
+              <!-- 上向き三角形 -->
+              <div
+                class="absolute top-[-6px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-bg_primary"
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="flex-1 min-h-0 flex flex-col relative">
@@ -116,6 +132,7 @@
         v-if="props.isFilter"
         class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto"
         style="backdrop-filter: blur(5px)"
+        @click="handleFilterTouch"
       ></div>
     </div>
   </div>
@@ -138,10 +155,21 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
+const isComposing = ref(false)
+
 onMounted(() => {
   nextTick(adjustHeight)
   setMinimumHeight()
   window.addEventListener('resize', setMinimumHeight)
+
+  const el = textareaRef.value
+  if (!el) return
+  el.addEventListener('compositionstart', () => {
+    isComposing.value = true
+  })
+  el.addEventListener('compositionend', () => {
+    isComposing.value = false
+  })
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setMinimumHeight)
@@ -179,6 +207,11 @@ const adjustHeight = () => {
 
 // Tab/Enterキー対応（リスト補完など）
 const handleKeydown = (e: KeyboardEvent) => {
+  if (isComposing.value) {
+    // 日本語変換中なら処理をスキップ
+    return
+  }
+
   const el = textareaRef.value
   if (!el) return
 
@@ -225,7 +258,24 @@ const handleKeydown = (e: KeyboardEvent) => {
     const lines = value.substring(0, selectionStart).split('\n')
     const lastLine = lines[lines.length - 1]
 
-    // * - 数字リスト
+    // 空のリスト記号だけ（リスト削除判定）
+    const regexEmptyList = /^\s*([*-]|\d+\.)\s?$/
+    if (regexEmptyList.test(lastLine)) {
+      e.preventDefault()
+      // 1行削除してカーソル位置を調整
+      lines.pop()
+      const before = lines.join('\n')
+      const after = value.substring(selectionStart)
+      const newValue = before + (before ? '\n' : '') + after
+
+      emit('update:modelValue', newValue)
+      nextTick(() => {
+        el.selectionStart = el.selectionEnd = before.length + (before ? 1 : 0)
+      })
+      return
+    }
+
+    // * - 数字リスト補完
     const regexList = /^[*-]\s+/
     const regexListChild = /^\s+[*-]\s+/
     const regexNumberList = /^[0-9]+\.\s+/
@@ -237,7 +287,6 @@ const handleKeydown = (e: KeyboardEvent) => {
     } else if ((matched = lastLine.match(regexListChild))) {
       insertText = '\n' + matched[0]
     } else if ((matched = lastLine.match(regexNumberList))) {
-      // 数字リストの場合、番号をインクリメント
       const num = parseInt(matched[0], 10)
       insertText = `\n${num + 1}. `
     }
@@ -254,25 +303,6 @@ const handleKeydown = (e: KeyboardEvent) => {
       return
     }
   }
-}
-
-// 選択範囲をwrap
-const wrapSelection = (wrapper: string) => {
-  const el = textareaRef.value
-  if (!el) return
-  const { selectionStart, selectionEnd, value } = el
-  const selected = value.substring(selectionStart, selectionEnd)
-  const newText = wrapper + selected + wrapper
-
-  const newValue = value.substring(0, selectionStart) + newText + value.substring(selectionEnd)
-  emit('update:modelValue', newValue)
-
-  // 選択範囲復元
-  nextTick(() => {
-    el.selectionStart = selectionStart + wrapper.length
-    el.selectionEnd = selectionEnd + wrapper.length
-    el.focus()
-  })
 }
 
 // [](url) 生成（Ctrl+K）
@@ -348,6 +378,19 @@ const wrapSelectionExec = (wrapper: string) => {
       el.focus()
     })
   }
+}
+
+const showTooltip = ref(false)
+let tooltipTimeout: ReturnType<typeof setTimeout> | null = null
+
+const handleFilterTouch = () => {
+  showTooltip.value = true
+  if (tooltipTimeout) {
+    clearTimeout(tooltipTimeout)
+  }
+  tooltipTimeout = setTimeout(() => {
+    showTooltip.value = false
+  }, 3000)
 }
 
 // filter（読み取り専用）制御
