@@ -1,14 +1,14 @@
 <template>
   <div
     class="flex h-full border-r border-border_primary flex-col"
-    :class="[isOpenMenu ? 'w-[225px]' : 'w-[48px]']"
+    :class="[props.isOpenMenu ? 'w-[225px] min-w-[225px]' : 'w-[48px] min-w-[48px]']"
   >
     <!-- menu open/close -->
     <div
       class="p-[12px] border-b border-border_primary flex"
-      :class="[isOpenMenu ? 'justify-end' : 'justify-center']"
+      :class="[props.isOpenMenu ? 'justify-end' : 'justify-center']"
     >
-      <button @click="isOpenMenu = !isOpenMenu" class="text-icon_primary">
+      <button @click.stop="handleToggleMenu" class="text-icon_primary">
         <svg
           width="20"
           height="20"
@@ -154,21 +154,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-const MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
-
 type Props = {
   menus: { id: string; text: string }[]
   currentNoteId: string
+  isOpenMenu: boolean
 }
 const props = defineProps<Props>()
-
-const isOpenMenu = ref<boolean>(false)
 
 const emit = defineEmits<{
   (e: 'delete', menuId: string): void
   (e: 'change', menuId: string): void
   (e: 'create'): void
+  (e: 'toggleMenu', isOpenMenu: boolean): void
 }>()
 
 const handleDeleteNote = (menuId: string) => {
@@ -181,14 +178,9 @@ const handleChangeNote = (menuId: string) => {
   emit('change', menuId)
 }
 
-onMounted(() => {
-  const open = localStorage.getItem(MENU_OPEN_KEY)
-  isOpenMenu.value = open === 'true'
-})
-
-watch(isOpenMenu, (val) => {
-  localStorage.setItem(MENU_OPEN_KEY, val ? 'true' : 'false')
-})
+const handleToggleMenu = () => {
+  emit('toggleMenu', !props.isOpenMenu)
+}
 </script>
 
 <style scoped></style>

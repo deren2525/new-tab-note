@@ -9,9 +9,11 @@
       <SideMenu
         :menus="notes"
         :current-note-id="currentId"
+        :is-open-menu="isOpenSideMenu"
         @delete="deleteNote"
         @create="createNote"
         @change="changeNote"
+        @toggle-menu="(v) => (isOpenSideMenu = v)"
       />
       <div class="bg-bg_secondary w-full flex">
         <EmptyState v-if="!notes.length" @create="createNote" />
@@ -28,6 +30,7 @@
             v-if="isPreviewMode"
             :data="text"
             :is-filter="isFilter"
+            :is-side-menu-open="isOpenSideMenu"
             @removePreview="isPreviewMode = false"
           />
         </template>
@@ -58,6 +61,7 @@ const currentId = ref<string>('')
 const isFilter = ref<boolean>(false)
 const isPreviewMode = ref<boolean>(false)
 const text = ref<string>('')
+const isOpenSideMenu = ref<boolean>(true)
 
 const themeOptions = [
   { name: 'Dark', color: '#181818', border: '#2b2b2b' },
@@ -83,6 +87,7 @@ const STORAGE_KEY_TARGET_ID = 'new_tab_note:target_note_id'
 const FILTER_KEY = 'new_tab_note:filter'
 const PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
 const THEME_COLOR_KEY = 'new_tab_note:theme_color'
+const SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
 const INIT_TEXT = enMessages.InitText.message
 
 // 初期化
@@ -91,6 +96,7 @@ onMounted(() => {
   isPreviewMode.value = localStorage.getItem(PREVIEW_MODE_KEY) === 'true'
   isFilter.value = localStorage.getItem(FILTER_KEY) === 'true'
   theme.value = localStorage.getItem(THEME_COLOR_KEY) || 'dark'
+  isOpenSideMenu.value = localStorage.getItem(SIDE_MENU_OPEN_KEY) === 'true'
   if (savedNotes) {
     notes.value = JSON.parse(savedNotes)
   } else {
@@ -188,6 +194,9 @@ watch(isFilter, (val) => {
 watch(theme, (val) => {
   document.documentElement.setAttribute('data-theme', val)
   localStorage.setItem(THEME_COLOR_KEY, val)
+})
+watch(isOpenSideMenu, (val) => {
+  localStorage.setItem(SIDE_MENU_OPEN_KEY, val ? 'true' : 'false')
 })
 </script>
 

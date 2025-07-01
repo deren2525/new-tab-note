@@ -55,7 +55,10 @@ button {
   @apply my-[12px] text-base break-anywhere;
 }
 .c-preview pre {
-  max-width: calc(50svw - 32px - 24px);
+  @apply max-w-[calc(50svw-32px-24px)];
+}
+.c-preview.c-side-menu-open pre {
+  @apply max-w-[calc(50svw-32px-114px)];
 }
 /* コード・ブロック */
 .c-preview pre code {

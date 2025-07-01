@@ -57,7 +57,10 @@
     </div>
     <div
       class="c-preview flex-1 min-h-0 p-[16px] relative"
-      :class="props.isFilter ? 'overflow-hidden' : 'overflow-auto'"
+      :class="[
+        props.isFilter ? 'overflow-hidden' : 'overflow-auto',
+        props.isSideMenuOpen ? 'c-side-menu-open' : '',
+      ]"
     >
       <div v-html="renderedHtml"></div>
       <div
@@ -76,6 +79,7 @@ import { marked } from 'marked'
 type Props = {
   data: string
   isFilter: boolean
+  isSideMenuOpen: boolean
 }
 
 const props = defineProps<Props>()
