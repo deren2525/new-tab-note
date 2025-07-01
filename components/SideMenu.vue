@@ -71,14 +71,14 @@
             <li
               v-for="menu in props.menus"
               :key="menu.id"
-              class="flex h-[25px] px-[8px] cursor-pointer items-center truncate relative group"
+              class="flex h-[28px] px-[8px] cursor-pointer items-center truncate relative group"
               :class="[props.currentNoteId === menu.id ? 'bg-bg_active' : '']"
               @click="handleChangeNote(menu.id)"
             >
               {{ (menu.text.trim() || 'new note').substring(0, 25) }}
               <button
                 v-if="menu.id === props.currentNoteId"
-                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[25px] text-text_button_primary"
+                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[28px] text-text_button_primary"
                 @click.stop="handleDeleteNote(menu.id)"
                 title="Delete"
                 tabindex="-1"
