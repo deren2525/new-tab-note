@@ -112,7 +112,7 @@
               class="relative bg-bg_primary text-text_primary text-body rounded px-[12px] py-[8px]"
             >
               <p>
-                {{ RESUME_EDIT_MESSAGE }}
+                {{ MESSAGE_RESUME_EDIT }}
               </p>
             </div>
           </div>
@@ -154,8 +154,9 @@ const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
 }>()
 
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const isComposing = ref(false)
-const RESUME_EDIT_MESSAGE = chrome.i18n.getMessage('RESUME_EDIT_MESSAGE')
+const MESSAGE_RESUME_EDIT = chrome.i18n.getMessage('RESUME_EDIT_ALERT')
 
 onMounted(() => {
   nextTick(adjustHeight)
@@ -174,8 +175,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setMinimumHeight)
 })
-
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
 const handleFilter = (isFilter: boolean) => {
   emit('filter', !isFilter)
@@ -207,31 +206,26 @@ const adjustHeight = () => {
 
 // Tab/Enterキー対応（リスト補完など）
 const handleKeydown = (e: KeyboardEvent) => {
-  if (isComposing.value) {
-    // 日本語変換中なら処理をスキップ
-    return
-  }
+  if (isComposing.value) return
 
   const el = textareaRef.value
   if (!el) return
 
-  console.log(e.key)
-
-  // --- 1. Ctrl+B / Cmd+B → 太字 ---
+  // Ctrl+B / Cmd+B -> 太字
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
     e.preventDefault()
     wrapSelectionExec('**')
     return
   }
 
-  // --- 2. Ctrl+I / Cmd+I → イタリック ---
+  // Ctrl+I / Cmd+I -> イタリック
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'i') {
     e.preventDefault()
     wrapSelectionExec('*')
     return
   }
 
-  // --- 3. Ctrl+K → リンク ---
+  // Ctrl+K -> リンク
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     wrapLinkExec()
@@ -402,7 +396,7 @@ watch(
   },
   { immediate: true }
 )
-defineExpose({ textareaRef }) // 必要なら外部からref参照
+defineExpose({ textareaRef })
 </script>
 
 <style scoped></style>

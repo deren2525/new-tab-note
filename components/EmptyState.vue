@@ -2,7 +2,7 @@
   <div
     class="w-full h-full flex flex-col justify-center items-center bg-bg_secondary text-text_primary"
   >
-    <div class="text-h4 mb-[8px]">{{ NO_NOTES }}</div>
+    <div class="text-h4 mb-[8px]">{{ MESSAGE_NO_NOTES }}</div>
     <div class="w-[160px]">
       <button
         class="flex gap-[8px] p-[8px] bg-bg_button_primary w-full rounded-[4px] items-center text-text_button_primary"
@@ -37,7 +37,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        {{ CREATE_NEW_NOTE }}
+        {{ MESSAGE_CREATE_NEW_NOTE }}
       </button>
     </div>
   </div>
@@ -45,9 +45,10 @@
 <script setup lang="ts">
 const emit = defineEmits<{ (e: 'create'): void }>()
 
+const MESSAGE_NO_NOTES = chrome.i18n.getMessage('NO_NOTES')
+const MESSAGE_CREATE_NEW_NOTE = chrome.i18n.getMessage('CREATE_NEW_NOTE')
+
 const handleCreateNote = () => {
   emit('create')
 }
-const NO_NOTES = chrome.i18n.getMessage('NO_NOTES')
-const CREATE_NEW_NOTE = chrome.i18n.getMessage('CREATE_NEW_NOTE')
 </script>

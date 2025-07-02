@@ -11,7 +11,7 @@
   "CONFIRM_DELETE_NOTE": {
     "message": "Are you sure you want to delete this note?"
   },
-  "RESUME_EDIT_MESSAGE": {
+  "RESUME_EDIT_ALERT": {
     "message": "To resume editing, please clear the filter."
   },
   "NO_NOTES": {

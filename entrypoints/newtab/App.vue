@@ -80,34 +80,34 @@ const themeOptions = [
 
 const theme = ref<Theme>('dark')
 
-const STORAGE_KEY_NOTES = 'new_tab_note:notes'
-const STORAGE_KEY_TARGET_ID = 'new_tab_note:target_note_id'
-const FILTER_KEY = 'new_tab_note:filter'
-const PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
-const THEME_COLOR_KEY = 'new_tab_note:theme_color'
-const SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
-const INIT_TEXT = chrome.i18n.getMessage('INIT_TEXT')
-const CONFIRM_DELETE_NOTE = chrome.i18n.getMessage('CONFIRM_DELETE_NOTE')
+const STORAGE_NOTES_KEY = 'new_tab_note:notes'
+const STORAGE_TARGET_NOTE_ID_KEY = 'new_tab_note:target_note_id'
+const STORAGE_FILTER_KEY = 'new_tab_note:filter'
+const STORAGE_PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
+const STORAGE_THEME_COLOR_KEY = 'new_tab_note:theme_color'
+const STORAGE_SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
+const MESSAGE_INIT_TEXT = chrome.i18n.getMessage('INIT_TEXT')
+const MESSAGE_CONFIRM_DELETE_NOTE = chrome.i18n.getMessage('CONFIRM_DELETE_NOTE')
 
 // 初期化
 onMounted(() => {
-  const savedNotes = localStorage.getItem(STORAGE_KEY_NOTES)
-  isPreviewMode.value = localStorage.getItem(PREVIEW_MODE_KEY) === 'true'
-  isFilter.value = localStorage.getItem(FILTER_KEY) === 'true'
-  theme.value = localStorage.getItem(THEME_COLOR_KEY) || 'dark'
-  isOpenSideMenu.value = localStorage.getItem(SIDE_MENU_OPEN_KEY) === 'true'
+  const savedNotes = localStorage.getItem(STORAGE_NOTES_KEY)
+  isPreviewMode.value = localStorage.getItem(STORAGE_PREVIEW_MODE_KEY) === 'true'
+  isFilter.value = localStorage.getItem(STORAGE_FILTER_KEY) === 'true'
+  theme.value = localStorage.getItem(STORAGE_THEME_COLOR_KEY) || 'dark'
+  isOpenSideMenu.value = localStorage.getItem(STORAGE_SIDE_MENU_OPEN_KEY) === 'true'
   if (savedNotes) {
     notes.value = JSON.parse(savedNotes)
   } else {
     createNote()
   }
 
-  const savedId = localStorage.getItem(STORAGE_KEY_TARGET_ID)
+  const savedId = localStorage.getItem(STORAGE_TARGET_NOTE_ID_KEY)
   if (savedId && notes.value.some((n) => n.id === savedId)) {
     currentId.value = savedId
   } else {
     currentId.value = notes.value[0].id
-    localStorage.setItem(STORAGE_KEY_TARGET_ID, currentId.value)
+    localStorage.setItem(STORAGE_TARGET_NOTE_ID_KEY, currentId.value)
   }
 
   // テキスト本体
@@ -119,29 +119,29 @@ const createNote = () => {
   const id = uuidv4()
   const newNote = {
     id,
-    text: notes.value.length ? '' : INIT_TEXT.replace(/\s+$/, ''),
+    text: notes.value.length ? '' : MESSAGE_INIT_TEXT.replace(/\s+$/, ''),
   }
   notes.value.push(newNote)
   currentId.value = id
   text.value = newNote.text
-  localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes.value))
-  localStorage.setItem(STORAGE_KEY_TARGET_ID, id)
+  localStorage.setItem(STORAGE_NOTES_KEY, JSON.stringify(notes.value))
+  localStorage.setItem(STORAGE_TARGET_NOTE_ID_KEY, id)
 }
 
 const deleteNote = (id: string) => {
   // 削除前に確認ダイアログ
-  if (!window.confirm(CONFIRM_DELETE_NOTE)) return
+  if (!window.confirm(MESSAGE_CONFIRM_DELETE_NOTE)) return
 
   const idx = notes.value.findIndex((n) => n.id === id)
   if (idx === -1) return
 
   notes.value.splice(idx, 1)
-  localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes.value))
+  localStorage.setItem(STORAGE_NOTES_KEY, JSON.stringify(notes.value))
 
   if (notes.value.length === 0) {
     currentId.value = ''
     text.value = ''
-    localStorage.removeItem(STORAGE_KEY_TARGET_ID)
+    localStorage.removeItem(STORAGE_TARGET_NOTE_ID_KEY)
     return
   }
 
@@ -174,28 +174,28 @@ watch(text, (val) => {
   const idx = notes.value.findIndex((n) => n.id === currentId.value)
   if (idx !== -1) {
     notes.value[idx].text = val
-    localStorage.setItem(STORAGE_KEY_NOTES, JSON.stringify(notes.value))
+    localStorage.setItem(STORAGE_NOTES_KEY, JSON.stringify(notes.value))
   }
 })
 
 // ノート切り替え時
 watch(currentId, (val) => {
-  localStorage.setItem(STORAGE_KEY_TARGET_ID, val)
+  localStorage.setItem(STORAGE_TARGET_NOTE_ID_KEY, val)
   const note = notes.value.find((n) => n.id === val)
   text.value = note ? note.text : ''
 })
 watch(isPreviewMode, (val) => {
-  localStorage.setItem(PREVIEW_MODE_KEY, val ? 'true' : 'false')
+  localStorage.setItem(STORAGE_PREVIEW_MODE_KEY, val ? 'true' : 'false')
 })
 watch(isFilter, (val) => {
-  localStorage.setItem(FILTER_KEY, val ? 'true' : 'false')
+  localStorage.setItem(STORAGE_FILTER_KEY, val ? 'true' : 'false')
 })
 watch(theme, (val) => {
   document.documentElement.setAttribute('data-theme', val)
-  localStorage.setItem(THEME_COLOR_KEY, val)
+  localStorage.setItem(STORAGE_THEME_COLOR_KEY, val)
 })
 watch(isOpenSideMenu, (val) => {
-  localStorage.setItem(SIDE_MENU_OPEN_KEY, val ? 'true' : 'false')
+  localStorage.setItem(STORAGE_SIDE_MENU_OPEN_KEY, val ? 'true' : 'false')
 })
 </script>
 

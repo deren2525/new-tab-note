@@ -11,7 +11,7 @@
   "CONFIRM_DELETE_NOTE": {
     "message": "本当に削除しますか？"
   },
-  "RESUME_EDIT_MESSAGE": {
+  "RESUME_EDIT_ALERT": {
     "message": "編集を再開するにはフィルターを解除してください"
   },
   "NO_NOTES": {

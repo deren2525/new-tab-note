@@ -87,10 +87,6 @@ const emit = defineEmits<{
   (e: 'removePreview'): void
 }>()
 
-const handleRemovePreview = () => {
-  emit('removePreview')
-}
-
 const previewRef = ref<HTMLDivElement | null>(null)
 const renderedHtml = ref<string>('')
 
@@ -103,6 +99,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setMinimumHeight)
 })
+
+const handleRemovePreview = () => {
+  emit('removePreview')
+}
 
 // 高さをウィンドウに合わせて維持
 const setMinimumHeight = () => {
@@ -117,7 +117,7 @@ watch(
     let html = await marked.parse(md || '')
 
     // チェックボックス化
-    // - [x], - [ ] → input type=checkbox
+    // - [x], - [ ] -> input type=checkbox
     html = html
       .replace(/\[x\]/g, "<input type='checkbox' checked='checked'>")
       .replace(/\[ \]/g, "<input type='checkbox'>")

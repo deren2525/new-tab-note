@@ -62,7 +62,7 @@
                 stroke-linejoin="round"
               />
             </svg>
-            {{ NEW_NOTE }}
+            {{ MESSAGE_NEW_NOTE }}
           </button>
         </div>
         <!-- note list -->
@@ -154,7 +154,7 @@
 </template>
 
 <script setup lang="ts">
-const NEW_NOTE = chrome.i18n.getMessage('NEW_NOTE')
+const MESSAGE_NEW_NOTE = chrome.i18n.getMessage('NEW_NOTE')
 
 type Props = {
   menus: { id: string; text: string }[]
