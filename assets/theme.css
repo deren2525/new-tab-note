@@ -184,12 +184,12 @@
   --bg_blockquote: #586e75;
   --bg_active: #657b83;
   --bg_delete: #dc322f;
-  --bg_button_primary: #268bd2;
+  --bg_button_primary: #b58900;
   --border_primary: #204350;
   --border_blockquote: #586e75;
   --icon_primary: #b58900;
   --text_primary: #eee8d5;
-  --text_button_primary: #002b36;
+  --text_button_primary: #eee8d5;
   --text_link: #2aa198;
 }
 :root[data-theme='aubergine'] {
