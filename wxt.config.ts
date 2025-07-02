@@ -3,9 +3,9 @@ import vue from '@vitejs/plugin-vue'
 
 export default defineConfig({
   manifest: {
-    name: '__MSG_Name__',
+    name: '__MSG_NAME__',
     version: '3.0.0',
-    description: '__MSG_Description__',
+    description: '__MSG_DESCRIPTION__',
     manifest_version: 3,
     default_locale: 'en',
     action: {

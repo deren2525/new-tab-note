@@ -111,7 +111,9 @@
             <div
               class="relative bg-bg_primary text-text_primary text-body rounded px-[12px] py-[8px]"
             >
-              <p>編集を再開するにはフィルターを解除してください</p>
+              <p>
+                {{ RESUME_EDIT_MESSAGE }}
+              </p>
             </div>
           </div>
         </div>
@@ -153,6 +155,7 @@ const emit = defineEmits<{
 }>()
 
 const isComposing = ref(false)
+const RESUME_EDIT_MESSAGE = chrome.i18n.getMessage('RESUME_EDIT_MESSAGE')
 
 onMounted(() => {
   nextTick(adjustHeight)

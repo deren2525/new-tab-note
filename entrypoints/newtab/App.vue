@@ -40,10 +40,8 @@
 </template>
 
 <script setup lang="ts">
-import enMessages from '@/public/_locales/en/messages.json'
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import { marked } from 'marked'
 import Header from '@/components/Header.vue'
 import SideMenu from '@/components/SideMenu.vue'
 import Edit from '@/components/Edit.vue'
@@ -88,7 +86,7 @@ const FILTER_KEY = 'new_tab_note:filter'
 const PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
 const THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
-const INIT_TEXT = enMessages.InitText.message
+const INIT_TEXT = chrome.i18n.getMessage('INIT_TEXT')
 
 // 初期化
 onMounted(() => {
