@@ -97,3 +97,18 @@ button {
   font-family: 'Lato-Bold', theme('fontFamily.sans', 'sans-serif');
   font-weight: 900;
 }
+
+::-webkit-scrollbar {
+  @apply w-[8px] h-[8px];
+}
+::-webkit-scrollbar-track {
+  background: var(--bg_secondary);
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-[4px] border-transparent border-[2px];
+  background-color: var(--bg_primary);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--bg_primary);
+}
