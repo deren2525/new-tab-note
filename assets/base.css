@@ -1,0 +1,114 @@
+@layer utilities {
+  .break-anywhere {
+    overflow-wrap: anywhere;
+  }
+}
+
+html,
+body {
+  @apply w-full h-full box-border m-0 p-0 text-text_primary;
+}
+* {
+  @apply leading-relaxed outline-none;
+  font-size: 1.4;
+}
+body {
+  @apply bg-bg_primary font-jp text-text_primary relative text-body;
+}
+p,
+span,
+input {
+  @apply text-text_primary text-body;
+}
+button {
+  @apply hover:opacity-80;
+}
+.c-preview *:first-child {
+  @apply mt-0;
+}
+.c-preview h1 {
+  @apply relative text-h1 font-bold mt-[24px] mb-[36px] break-anywhere;
+}
+.c-preview h1::after {
+  content: '';
+  @apply block border-b border-border_primary relative;
+  top: 0.5rem;
+}
+.c-preview h2 {
+  @apply relative text-h2 font-bold mt-[20px] mb-[32px] break-anywhere;
+}
+.c-preview h2::after {
+  content: '';
+  @apply block border-b border-border_primary relative;
+  top: 0.5rem;
+}
+.c-preview h3 {
+  @apply text-h3 font-bold mt-[20px] mb-[12px] break-anywhere;
+}
+.c-preview h4 {
+  @apply text-h4 font-bold mt-[16px] mb-[10px] break-anywhere;
+}
+.c-preview h5 {
+  @apply text-h5 font-bold mt-[16px] mb-[10px] break-anywhere;
+}
+.c-preview h6 {
+  @apply text-h6 font-bold mt-[16px] mb-[8px] break-anywhere;
+}
+.c-preview p {
+  @apply my-[12px] text-base break-anywhere;
+}
+.c-preview pre {
+  @apply max-w-[calc(50svw-32px-24px)];
+}
+.c-preview.c-side-menu-open pre {
+  @apply max-w-[calc(50svw-32px-114px)];
+}
+/* コード・ブロック */
+.c-preview pre code {
+  @apply block bg-bg_primary p-[16px] overflow-x-auto whitespace-pre font-robotoMono break-anywhere;
+}
+/* blockquote */
+.c-preview blockquote {
+  @apply border-l-[10px] rounded-tr-[5px] rounded-br-[5px] p-[16px] my-[16px] bg-bg_blockquote border-border_blockquote break-anywhere;
+}
+.c-preview blockquote p {
+  @apply my-0 break-anywhere;
+}
+.c-preview ul,
+.c-preview ol {
+  @apply pl-[32px] mt-0;
+}
+.c-preview ul {
+  @apply list-disc;
+}
+.c-preview ol {
+  @apply list-decimal;
+}
+.c-preview li {
+  @apply break-anywhere;
+}
+.c-preview li ul,
+.c-preview li ol {
+  @apply pl-[1rem];
+}
+/* strong, b */
+.c-preview strong,
+.c-preview b {
+  font-family: 'Lato-Bold', theme('fontFamily.sans', 'sans-serif');
+  font-weight: 900;
+}
+
+::-webkit-scrollbar {
+  @apply w-[8px] h-[8px];
+}
+::-webkit-scrollbar-track {
+  background: var(--bg_secondary);
+}
+::-webkit-scrollbar-thumb {
+  @apply rounded-[4px] border-transparent border-[2px];
+  background-color: var(--bg_primary);
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--bg_primary);
+}
