@@ -13,7 +13,7 @@ body {
   font-size: 1.4;
 }
 body {
-  @apply bg-bg_primary font-jp text-text_primary relative;
+  @apply bg-bg_primary font-jp text-text_primary relative text-body;
 }
 p,
 span,
