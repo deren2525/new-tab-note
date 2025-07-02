@@ -87,6 +87,7 @@ const PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
 const THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
 const INIT_TEXT = chrome.i18n.getMessage('INIT_TEXT')
+const CONFIRM_DELETE_NOTE = chrome.i18n.getMessage('CONFIRM_DELETE_NOTE')
 
 // 初期化
 onMounted(() => {
@@ -129,7 +130,7 @@ const createNote = () => {
 
 const deleteNote = (id: string) => {
   // 削除前に確認ダイアログ
-  if (!window.confirm('本当にこのノートを削除しますか？')) return
+  if (!window.confirm(CONFIRM_DELETE_NOTE)) return
 
   const idx = notes.value.findIndex((n) => n.id === id)
   if (idx === -1) return
