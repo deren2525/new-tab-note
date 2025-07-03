@@ -14,4 +14,11 @@
 - リロードしても消えないです
 
 バグの報告や改善案ご要望など大募集です。[こちら](https://github.com/deren2525/new-tab-note/issues/new/choose)からお願いします！
-# new-tab-note-page
+
+# WXT + Vue 3
+
+This template should help get you started developing with Vue 3 in WXT.
+
+## Recommended IDE Setup
+
+- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar).
