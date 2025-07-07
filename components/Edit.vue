@@ -122,7 +122,7 @@
     <div class="flex-1 min-h-0 flex flex-col relative">
       <textarea
         ref="textareaRef"
-        class="flex-1 w-full h-full resize-none outline-none bg-transparent p-4 text-sm overflow-auto text-text_primary"
+        class="flex-1 w-full h-full resize-none outline-none bg-transparent p-4 overflow-auto text-text_primary text-body"
         :value="props.modelValue"
         @input="handleInput"
         @keydown="handleKeydown"
@@ -190,7 +190,6 @@ const handleInput = (e: Event) => {
 
 // テキストエリア最低高さ
 const setMinimumHeight = () => {
-  console.log(textareaRef.value, 'textareaRef.value')
   if (!textareaRef.value) return
   const minHeight = window.innerHeight - 70
   textareaRef.value.style.minHeight = `${minHeight}px`

@@ -66,19 +66,19 @@
           </button>
         </div>
         <!-- note list -->
-        <div class="overflow-auto min-h-0 h-[calc(100svh-140.5px)]">
-          <ul>
+        <div class="overflow-auto min-h-0 h-[calc(100svh-150px)]">
+          <ul class="pb-[16px]">
             <li
               v-for="menu in props.menus"
               :key="menu.id"
-              class="flex h-[30px] px-[8px] cursor-pointer items-center truncate relative group"
+              class="flex h-[36px] px-[8px] cursor-pointer items-center truncate relative group text-small"
               :class="[props.currentNoteId === menu.id ? 'bg-bg_active' : '']"
               @click="handleChangeNote(menu.id)"
             >
               {{ (menu.text.trim() || 'new note').substring(0, 25) }}
               <button
                 v-if="menu.id === props.currentNoteId"
-                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[30px] text-text_button_primary"
+                class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[36px] text-text_button_primary"
                 @click.stop="handleDeleteNote(menu.id)"
                 title="Delete"
                 tabindex="-1"
