@@ -18,7 +18,7 @@
   --bg_secondary: #f5f5f5;
   --bg_blockquote: #eeeeee;
   --bg_active: #e0e0e0;
-  --bg_delete: #fddede;
+  --bg_delete: #f87171;
   --bg_button_primary: #2b73d6;
   --border_primary: #d0d0d0;
   --border_blockquote: #cccccc;
@@ -33,7 +33,7 @@
   --bg_secondary: #eef3f8;
   --bg_blockquote: #d9e2ec;
   --bg_active: #c9d6e0;
-  --bg_delete: #fae0e0;
+  --bg_delete: #f87171;
   --bg_button_primary: #3b82f6;
   --border_primary: #c5d2de;
   --border_blockquote: #b4c1ce;
@@ -76,7 +76,7 @@
 :root[data-theme='lavender'] {
   --bg_primary: #faf5ff;
   --bg_secondary: #ede4fb;
-  --bg_blockquote: #d8b4fe;
+  --bg_blockquote: #ede4fb;
   --bg_active: #d8b4fe;
   --bg_delete: #f43f5e;
   --bg_button_primary: #c084fc;
@@ -93,7 +93,7 @@
   --bg_secondary: #eee4d4;
   --bg_blockquote: #e1cbb3;
   --bg_active: #c4a98a;
-  --bg_delete: #e5a09c;
+  --bg_delete: #f87171;
   --bg_button_primary: #a67c52;
   --border_primary: #c0ae98;
   --border_blockquote: #1e1c19;
@@ -138,7 +138,7 @@
   --bg_secondary: #1b2d26;
   --bg_blockquote: #2e4a3f;
   --bg_active: #3a6352;
-  --bg_delete: #863636;
+  --bg_delete: #f87171;
   --bg_button_primary: #10b981;
   --border_primary: #274a3f;
   --border_blockquote: #2d6a4f;
@@ -186,7 +186,7 @@
   --bg_delete: #dc322f;
   --bg_button_primary: #b58900;
   --border_primary: #204350;
-  --border_blockquote: #586e75;
+  --border_blockquote: #002b36;
   --icon_primary: #b58900;
   --text_primary: #eee8d5;
   --text_button_primary: #eee8d5;

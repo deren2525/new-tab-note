@@ -76,6 +76,10 @@
 import { watch, onMounted, nextTick, onBeforeUnmount, ref } from 'vue'
 import { marked } from 'marked'
 
+marked.setOptions({
+  breaks: true,
+})
+
 type Props = {
   data: string
   isFilter: boolean
