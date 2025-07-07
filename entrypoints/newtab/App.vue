@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen w-full box-border text-text_black font-jp">
+  <div class="min-h-screen w-full box-border text-text_black font-sans">
     <Header
       @change-theme="changeTheme"
       :current-theme-color="theme"
@@ -154,7 +154,6 @@ const deleteNote = (id: string) => {
   } else {
     newCurrentNote = notes.value[0]
   }
-  console.log(newCurrentNote, 'newCurrentNote')
   if (newCurrentNote) {
     changeNote(newCurrentNote.id)
   }
