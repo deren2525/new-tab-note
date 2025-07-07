@@ -232,7 +232,6 @@ const handleKeydown = (e: KeyboardEvent) => {
     return
   }
 
-  // Tabでスペース2つ
   if (e.key === 'Tab') {
     const { selectionStart, selectionEnd, value } = el
     const beforeCursor = value.substring(0, selectionStart)
@@ -365,7 +364,6 @@ const wrapLinkExec = () => {
       el.selectionEnd = newSelectionEnd
     })
   } else {
-    // fallback: 手動置換
     const newValue = value.substring(0, selectionStart) + linkText + value.substring(selectionEnd)
     emit('update:modelValue', newValue)
     nextTick(() => {
@@ -393,7 +391,6 @@ const wrapSelectionExec = (wrapper: string) => {
       el.selectionEnd = selectionEnd + wrapper.length
     })
   } else {
-    // fallback: 手動置換
     const newValue = value.substring(0, selectionStart) + newText + value.substring(selectionEnd)
     emit('update:modelValue', newValue)
     nextTick(() => {
@@ -417,7 +414,7 @@ const handleFilterTouch = () => {
   }, 3000)
 }
 
-// filter（読み取り専用）制御
+// filter
 watch(
   () => props.isFilter,
   (is) => {
