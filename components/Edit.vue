@@ -209,6 +209,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 
   const el = textareaRef.value
   if (!el) return
+  const { selectionStart, selectionEnd, value } = el
 
   // Ctrl+B / Cmd+B -> 太字
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b') {
@@ -231,23 +232,51 @@ const handleKeydown = (e: KeyboardEvent) => {
     return
   }
 
-  // Tabでスペース2つ
   if (e.key === 'Tab') {
-    e.preventDefault()
     const { selectionStart, selectionEnd, value } = el
-    const before = value.substring(0, selectionStart)
-    const after = value.substring(selectionEnd)
-    const newValue = before + '\t' + after
-    emit('update:modelValue', newValue)
-    nextTick(() => {
-      el.selectionStart = el.selectionEnd = selectionStart + 2
-    })
-    return
+    const beforeCursor = value.substring(0, selectionStart)
+    const afterCursor = value.substring(selectionEnd)
+
+    const beforeLines = beforeCursor.split('\n')
+    const currentLineIndex = beforeLines.length - 1
+    const currentLine = beforeLines[currentLineIndex]
+
+    const listPattern = /^(\s*)([*\-+]|\d+\.)\s+/
+
+    if (listPattern.test(currentLine)) {
+      e.preventDefault()
+
+      const match = currentLine.match(listPattern)
+      const indent = match?.[1] ?? ''
+      const restLine = currentLine.slice(indent.length)
+
+      let newLine = ''
+      if (e.shiftKey) {
+        // Shift+Tab -> インデントを2スペース減らす
+        const newIndent = indent.length >= 2 ? indent.slice(0, -2) : ''
+        newLine = newIndent + restLine
+      } else {
+        // Tab -> インデントを2スペース増やす
+        newLine = '  ' + currentLine
+      }
+
+      beforeLines[currentLineIndex] = newLine
+      const newBefore = beforeLines.join('\n')
+      const newValue = newBefore + afterCursor
+
+      emit('update:modelValue', newValue)
+
+      nextTick(() => {
+        const cursorOffset = newLine.length - currentLine.length
+        const newCursor = selectionStart + cursorOffset
+        el.selectionStart = el.selectionEnd = newCursor
+      })
+      return
+    }
   }
 
   // Enterでリスト補完
   if (e.key === 'Enter') {
-    const { selectionStart, value } = el
     const lines = value.substring(0, selectionStart).split('\n')
     const lastLine = lines[lines.length - 1]
 
@@ -291,7 +320,8 @@ const handleKeydown = (e: KeyboardEvent) => {
       const newValue = before + insertText + after
       emit('update:modelValue', newValue)
       nextTick(() => {
-        el.selectionStart = el.selectionEnd = before.length + insertText.length
+        el.selectionEnd = before.length + insertText.length
+        el.selectionStart = el.selectionEnd
       })
       return
     }
@@ -334,7 +364,6 @@ const wrapLinkExec = () => {
       el.selectionEnd = newSelectionEnd
     })
   } else {
-    // fallback: 手動置換
     const newValue = value.substring(0, selectionStart) + linkText + value.substring(selectionEnd)
     emit('update:modelValue', newValue)
     nextTick(() => {
@@ -362,7 +391,6 @@ const wrapSelectionExec = (wrapper: string) => {
       el.selectionEnd = selectionEnd + wrapper.length
     })
   } else {
-    // fallback: 手動置換
     const newValue = value.substring(0, selectionStart) + newText + value.substring(selectionEnd)
     emit('update:modelValue', newValue)
     nextTick(() => {
@@ -386,7 +414,7 @@ const handleFilterTouch = () => {
   }, 3000)
 }
 
-// filter（読み取り専用）制御
+// filter
 watch(
   () => props.isFilter,
   (is) => {
