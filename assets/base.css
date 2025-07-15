@@ -60,6 +60,9 @@ button {
 .c-preview pre {
   @apply max-w-[calc(50svw-32px-24px)];
 }
+.c-preview pre + pre {
+  @apply mt-[12px];
+}
 .c-preview.c-side-menu-open pre {
   @apply max-w-[calc(50svw-32px-114px)];
 }

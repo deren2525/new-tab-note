@@ -47,7 +47,7 @@ module.exports = {
         h4: ['21px', { lineHeight: '1.75' }],
         h5: ['19.5px', { lineHeight: '1.75' }],
         h6: ['18px', { lineHeight: '1.75' }],
-        body: ['16px', { lineHeight: '1.75' }],
+        body: ['16px', { lineHeight: '1.6' }],
         small: ['14px', { lineHeight: '1.75' }],
       },
     },
