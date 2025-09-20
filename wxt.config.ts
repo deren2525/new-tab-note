@@ -8,6 +8,7 @@ export default defineConfig({
     description: '__MSG_DESCRIPTION__',
     manifest_version: 3,
     default_locale: 'en',
+    permissions: ['storage'],
     action: {
       default_icon: {
         '48': 'icon/icon.png',
