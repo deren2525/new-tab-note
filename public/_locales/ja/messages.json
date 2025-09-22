@@ -11,8 +11,26 @@
   "CONFIRM_DELETE_NOTE": {
     "message": "本当に削除しますか？"
   },
+  "CONFIRM_DELETE_SYNCED_NOTE": {
+    "message": "このノートを削除すると、同期中のすべての端末から削除されます。必要であれば削除前にバックアップを保存してください。"
+  },
+  "SYNC_BUTTON_ON": {
+    "message": "同期オン"
+  },
+  "SYNC_BUTTON_OFF": {
+    "message": "同期オフ"
+  },
+  "SYNC_RESUME_USE_LOCAL": {
+    "message": "このノートは同期を止める前の内容と異なります。現在の内容で同期を再開しますか？"
+  },
+  "SYNC_LABEL": {
+    "message": "同期する"
+  },
+  "SYNC_INFO": {
+    "message": "同期をオンにすると同じChromeアカウントの端末でも利用できます。オフにするとこの端末だけに保存されます。"
+  },
   "RESUME_EDIT_ALERT": {
-    "message": "編集を再開するにはフィルターを解除してください"
+    "message": "編集を再開するにはフィルターを解除してください。"
   },
   "NO_NOTES": {
     "message": "ノートがありません"
