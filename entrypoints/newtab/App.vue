@@ -317,10 +317,6 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
 ) => {
   if (areaName !== 'sync') return
 
-  console.group('[new-tab-note] storage.onChanged')
-  console.log('area', areaName)
-  console.log('raw changes', changes)
-
   const notesChange = changes[STORAGE_SYNCED_NOTES_KEY] ?? changes[STORAGE_NOTES_KEY]
   if (notesChange) {
     beginApplyingStorageUpdate()
@@ -369,11 +365,6 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
 
       const activeNote = notes.value.find((note) => note.id === currentId.value)
       text.value = activeNote ? activeNote.text : ''
-      console.log('[new-tab-note] storage.onChanged -> applied notes', {
-        totalRemote: remoteList.length,
-        localUnsynced: notes.value.filter((note) => !remoteOrder.has(note.id) && !note.isSynced)
-          .length,
-      })
       refreshAllSyncStatuses()
     } else if (newNotes === undefined) {
       console.warn('[new-tab-note] storage.onChanged -> notes cleared, attempting recovery')
@@ -388,9 +379,6 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
         }
         const activeNote = notes.value.find((note) => note.id === currentId.value)
         text.value = activeNote ? activeNote.text : ''
-        console.log('[new-tab-note] restoring notes from local backup', {
-          restoredCount: notes.value.length,
-        })
         void saveNotesToStorage()
       } else {
         notes.value = []
@@ -415,8 +403,6 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
       setLegacyValue(STORAGE_THEME_COLOR_KEY, newTheme)
     }
   }
-
-  console.groupEnd()
 }
 
 /**
@@ -456,12 +442,6 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
     refreshAllSyncStatuses()
     return
   }
-
-  console.log('[new-tab-note] saveNotesToStorage -> sync write', {
-    syncedCount: syncedNotesPayload.filter((note) => note.isSynced !== false).length,
-    archivedCount: syncedNotesPayload.filter((note) => note.isSynced === false).length,
-    currentId: currentId.value,
-  })
 
   try {
     await storageArea!.set({ [STORAGE_SYNCED_NOTES_KEY]: syncedNotesPayload })
@@ -670,7 +650,6 @@ const toggleNoteSync = async (id: string) => {
     if (note.syncedText === null) {
       note.syncedText = note.text
     }
-    console.log('[new-tab-note] toggleNoteSync -> off', { id })
     setSyncStatus(note.id, 'off')
     await saveNotesToStorage()
     return
@@ -690,7 +669,6 @@ const toggleNoteSync = async (id: string) => {
   note.isSynced = true
   note.syncedText = note.text
   setSyncStatus(note.id, 'syncing')
-  console.log('[new-tab-note] toggleNoteSync -> on', { id })
   await saveNotesToStorage()
 }
 
@@ -857,11 +835,6 @@ watch(text, (val) => {
     setSyncStatus(notes.value[idx].id, 'syncing')
   }
 
-  console.log('[new-tab-note] text watch -> queueSaveNotes', {
-    noteId: currentId.value,
-    textLength: val.length,
-  })
-
   // 同期対象ならchrome.storage.syncへ書き込み、ストレージに保存
   queueSaveNotes()
 })
@@ -880,11 +853,9 @@ watch(currentId, (val) => {
 
   if (val) {
     // 選択中のノートIDをlocalStorageに保存
-    console.log('[new-tab-note] currentId watch -> setLegacyValue', { noteId: val })
     setLegacyValue(STORAGE_TARGET_NOTE_ID_KEY, val)
   } else {
     // ノートがなくなったらlocalStorageに保持していたIDを破棄
-    console.log('[new-tab-note] currentId watch -> remove local target id')
     setLegacyValue(STORAGE_TARGET_NOTE_ID_KEY, undefined)
   }
 })
@@ -892,7 +863,6 @@ watch(currentId, (val) => {
 // プレビューモード更新時
 watch(isPreviewMode, (val) => {
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は書き込み不要
-  console.log('[new-tab-note] preview watch -> setLegacyValue', { value: val })
   // 端末ごとに保持するためlocalStorageに保存
   setLegacyValue(STORAGE_PREVIEW_MODE_KEY, val)
 })
@@ -900,7 +870,6 @@ watch(isPreviewMode, (val) => {
 // フィルター設定更新時
 watch(isFilter, (val) => {
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は書き込み不要
-  console.log('[new-tab-note] filter watch -> setLegacyValue', { value: val })
   // 端末ごとに保持するためlocalStorageに保存
   setLegacyValue(STORAGE_FILTER_KEY, val)
 })
@@ -909,7 +878,6 @@ watch(isFilter, (val) => {
 watch(theme, (val) => {
   setThemeColor(val)
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は保存しない
-  console.log('[new-tab-note] theme watch -> setStorageValue', { value: val })
   // テーマカラーは端末間で共有するため同期ストレージへ保存
   void setStorageValue(STORAGE_THEME_COLOR_KEY, val)
 })
@@ -917,7 +885,6 @@ watch(theme, (val) => {
 // サイドメニュー開閉更新時
 watch(isOpenSideMenu, (val) => {
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は保存しない
-  console.log('[new-tab-note] sideMenu watch -> setLegacyValue', { value: val })
   // 端末ごとに保持するためlocalStorageに保存
   setLegacyValue(STORAGE_SIDE_MENU_OPEN_KEY, val)
 })
