@@ -145,6 +145,11 @@ const STORAGE_FILTER_KEY = 'new_tab_note:filter'
 const STORAGE_PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
 const STORAGE_THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const STORAGE_SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
+const SYNC_MAX_BYTES_PER_ITEM = 8 * 1024
+const SYNC_TOTAL_BYTES_LIMIT = 102_400
+const SYNC_CHUNK_SAFE_BYTES = 7000
+const SYNC_CHUNK_META_VERSION = 2
+const SYNC_CHUNK_KEY_PREFIX = `${STORAGE_SYNCED_NOTES_KEY}__chunk_`
 const MESSAGE_INIT_TEXT = chrome.i18n.getMessage('INIT_TEXT')
 const MESSAGE_CONFIRM_DELETE_NOTE =
   chrome.i18n.getMessage('CONFIRM_DELETE_NOTE') || 'Are you sure you want to delete this note?'
@@ -154,6 +159,9 @@ const MESSAGE_CONFIRM_DELETE_SYNCED_NOTE =
 const MESSAGE_RESUME_SYNC_USE_LOCAL =
   chrome.i18n.getMessage('SYNC_RESUME_USE_LOCAL') ||
   'This note differs from its content before sync was stopped. Do you want to resume syncing with the current content?'
+const MESSAGE_SYNC_QUOTA_EXCEEDED =
+  chrome.i18n.getMessage('SYNC_QUOTA_EXCEEDED') ||
+  'Sync storage is full. Please clean up unnecessary notes.'
 
 // ノート内容を同期保存する処理を1秒(1000ms)だけ遅らせて連続書き込みを防ぐための待機時間
 const NOTE_SAVE_DEBOUNCE = 1000
@@ -161,6 +169,9 @@ const NOTE_SAVE_DEBOUNCE = 1000
 const storageArea = chrome?.storage?.sync
 // chrome.storage.sync が利用できる環境かどうか
 const hasSyncStorage = Boolean(storageArea)
+const utf8Encoder = new TextEncoder()
+
+let lastSyncedChunksCount = 0
 
 /**
  * syncStatusMap(各ノートの同期ステータス管理)に指定したノートの状態をセット
@@ -186,7 +197,18 @@ const refreshAllSyncStatuses = () => {
   const knownIds = new Set<string>()
   for (const note of notes.value) {
     knownIds.add(note.id)
-    setSyncStatus(note.id, note.isSynced ? 'synced' : 'off')
+    const current = syncStatusMap.value[note.id]
+    if (current === 'error') {
+      // エラー状態はユーザー操作で明示的に解消されるまで維持
+      continue
+    }
+    if (!note.isSynced) {
+      setSyncStatus(note.id, 'off')
+    } else if (note.text !== note.syncedText) {
+      setSyncStatus(note.id, 'syncing')
+    } else {
+      setSyncStatus(note.id, 'synced')
+    }
   }
   for (const id of Object.keys(syncStatusMap)) {
     if (!knownIds.has(id)) {
@@ -246,6 +268,40 @@ const setLegacyValue = (key: string, value: unknown) => {
   }
 }
 
+const measureUtf8Bytes = (input: string) => {
+  return utf8Encoder.encode(input).length
+}
+
+const chunkUtf8String = (input: string, maxBytes: number) => {
+  if (maxBytes <= 0) return []
+  const encoder = new TextEncoder()
+  const decoder = new TextDecoder()
+  const bytes = encoder.encode(input)
+  const chunks: string[] = []
+  let offset = 0
+  while (offset < bytes.length) {
+    const end = Math.min(offset + maxBytes, bytes.length)
+    const slice = bytes.slice(offset, end)
+    const chunk = decoder.decode(slice, { stream: end !== bytes.length })
+    chunks.push(chunk)
+    offset = end
+  }
+  const tail = decoder.decode()
+  if (tail) {
+    const lastIndex = chunks.length - 1
+    if (lastIndex >= 0) {
+      chunks[lastIndex] += tail
+    } else {
+      chunks.push(tail)
+    }
+  }
+  return chunks
+}
+
+const getSyncChunkKey = (index: number) => {
+  return `${SYNC_CHUNK_KEY_PREFIX}${index}`
+}
+
 /**
  * 指定したキーの値を取得
  * chrome.storage.syncが使えるならそこから非同期に取得
@@ -254,7 +310,19 @@ const setLegacyValue = (key: string, value: unknown) => {
  */
 const getStorageValues = async (keys: string[]) => {
   if (hasSyncStorage) {
-    return (await storageArea!.get(keys)) as Record<string, unknown>
+    const values = (await storageArea!.get(keys)) as Record<string, unknown>
+    if (keys.includes(STORAGE_SYNCED_NOTES_KEY)) {
+      const { notes: syncedNotes, chunkCount } = await readSyncedNotesFromStorage(
+        values[STORAGE_SYNCED_NOTES_KEY]
+      )
+      lastSyncedChunksCount = chunkCount
+      if (syncedNotes !== undefined) {
+        values[STORAGE_SYNCED_NOTES_KEY] = syncedNotes
+      } else {
+        delete values[STORAGE_SYNCED_NOTES_KEY]
+      }
+    }
+    return values
   }
   const legacy: Record<string, unknown> = {}
   for (const key of keys) {
@@ -292,22 +360,102 @@ let storageUpdateReleaseTimerId: ReturnType<typeof setTimeout> | null = null
  * storage.onChanged の反映処理中であることのフラグを立てる
  * 完了後に自動解除する
  */
-const beginApplyingStorageUpdate = () => {
+const runWithStorageUpdate = async (task: () => void | Promise<void>) => {
   isApplyingStorageUpdate = true
   if (storageUpdateReleaseTimerId) {
     clearTimeout(storageUpdateReleaseTimerId)
-  }
-  storageUpdateReleaseTimerId = setTimeout(() => {
-    isApplyingStorageUpdate = false
     storageUpdateReleaseTimerId = null
-  }, 0)
+  }
+  try {
+    await task()
+  } finally {
+    storageUpdateReleaseTimerId = setTimeout(() => {
+      isApplyingStorageUpdate = false
+      storageUpdateReleaseTimerId = null
+    }, 0)
+  }
+}
+
+/**
+ * リモートの同期データをローカル側へ統合しつつ、同期OFFのローカルノートは維持する。
+ * @param payload 同期ストレージから取得したノート一覧
+ */
+const applySyncedNotesUpdate = (payload: StoredNotePayload[]) => {
+  const remoteList = payload.map((remote) => toLocalNote({ ...remote, syncedText: remote.text }))
+  const remoteOrder = new Set(remoteList.map((note) => note.id))
+  const merged: Note[] = []
+
+  // 同期側に同名ノートがあれば差分をマージ。無ければそのまま採用
+  for (const remote of remoteList) {
+    const local = notes.value.find((note) => note.id === remote.id)
+    if (local) {
+      const updated: Note = {
+        ...local,
+        syncedText: remote.syncedText,
+        isSynced: remote.isSynced,
+        text: remote.isSynced ? remote.text : local.text, // 同期OFFの場合はローカル側の情報を反映
+      }
+      merged.push(updated)
+    } else {
+      merged.push(remote)
+    }
+  }
+
+  // リモートに無い＆同期OFFのノートはローカル専用として残す
+  for (const local of notes.value) {
+    if (!remoteOrder.has(local.id) && !local.isSynced) {
+      merged.push(local)
+    }
+  }
+
+  notes.value.splice(0, notes.value.length, ...merged)
+  // localStorageへ保存
+  setLegacyValue(STORAGE_NOTES_KEY, notes.value)
+  // 最終同期情報
+  lastSyncedNotesJSON = JSON.stringify(payload)
+
+  if (!notes.value.some((note) => note.id === currentId.value)) {
+    currentId.value = notes.value[0]?.id ?? ''
+  }
+
+  const activeNote = notes.value.find((note) => note.id === currentId.value)
+  text.value = activeNote ? activeNote.text : ''
+  refreshAllSyncStatuses()
+}
+
+/**
+ * 同期ストレージからノートが消えた場合にローカルバックアップで復旧
+ * なければ初期状態へ戻す
+ */
+const handleSyncedNotesCleared = () => {
+  console.warn('[new-tab-note] storage.onChanged -> notes cleared, attempting recovery')
+  const legacyNotes = readLegacyValue(STORAGE_NOTES_KEY)
+  if (isStoredNoteArray(legacyNotes) && legacyNotes.length) {
+    // ローカルバックアップがあれば復旧し、同期領域へ書き戻す
+    const restoredNotes = legacyNotes.map(toLocalNote)
+    notes.value.splice(0, notes.value.length, ...restoredNotes)
+    lastSyncedNotesJSON = ''
+    if (!restoredNotes.some((note) => note.id === currentId.value)) {
+      currentId.value = notes.value[0]?.id ?? ''
+    }
+    const activeNote = notes.value.find((note) => note.id === currentId.value)
+    text.value = activeNote ? activeNote.text : ''
+    void saveNotesToStorage()
+  } else {
+    notes.value = []
+    setLegacyValue(STORAGE_NOTES_KEY, [])
+    lastSyncedNotesJSON = ''
+    currentId.value = ''
+    text.value = ''
+  }
+  refreshAllSyncStatuses()
 }
 
 /**
  * chrome.storage.onChanged の反映処理
  * - 同期したノートをローカル側にマージ
  * - 不足分は復活、余剰は除外
- * - 保存ループ防止のため beginApplyingStorageUpdate で処理をラップ
+ * - 保存ループ防止のため runWithStorageUpdate で処理をラップ
  * @param changes chrome.storage から渡される差分
  * @param areaName 更新が発生したストレージ領域名
  */
@@ -317,78 +465,33 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
 ) => {
   if (areaName !== 'sync') return
 
-  const notesChange = changes[STORAGE_SYNCED_NOTES_KEY] ?? changes[STORAGE_NOTES_KEY]
-  if (notesChange) {
-    beginApplyingStorageUpdate()
-    const newNotes = notesChange.newValue
-    if (isStoredNoteArray(newNotes)) {
-      // 同期領域に存在するノートをNote型へ変換
-      const remoteList = newNotes.map((payload) =>
-        toLocalNote({ ...payload, syncedText: payload.text })
-      )
-      // 同期側で存在するIDの集合
-      const remoteOrder = new Set(remoteList.map((note) => note.id))
-      const merged: Note[] = []
+  const changedKeys = Object.keys(changes)
+  const notesKeysChanged =
+    STORAGE_SYNCED_NOTES_KEY in changes ||
+    STORAGE_NOTES_KEY in changes ||
+    changedKeys.some((key) => key.startsWith(SYNC_CHUNK_KEY_PREFIX))
 
-      // 同期側に同名ノートがあれば差分をマージ。無ければそのまま採用
-      for (const remote of remoteList) {
-        const local = notes.value.find((note) => note.id === remote.id)
-        if (local) {
-          const updated: Note = {
-            ...local,
-            syncedText: remote.syncedText,
-            isSynced: remote.isSynced,
-            text: remote.isSynced ? remote.text : local.text, // 同期OFFの場合はローカル側の情報を反映
-          }
-          merged.push(updated)
-        } else {
-          merged.push(remote)
-        }
+  if (notesKeysChanged) {
+    const metaValue = changes[STORAGE_SYNCED_NOTES_KEY]?.newValue
+    void runWithStorageUpdate(async () => {
+      const { notes: syncedPayload, chunkCount } = await readSyncedNotesFromStorage(metaValue)
+      lastSyncedChunksCount = chunkCount
+
+      if (syncedPayload !== undefined && isStoredNoteArray(syncedPayload)) {
+        applySyncedNotesUpdate(syncedPayload)
+        return
       }
 
-      // リモートに無い＆同期OFFのノートはローカル専用として残す
-      for (const local of notes.value) {
-        if (!remoteOrder.has(local.id) && !local.isSynced) {
-          merged.push(local)
-        }
+      if (metaValue === undefined) {
+        handleSyncedNotesCleared()
+        return
       }
 
-      notes.value.splice(0, notes.value.length, ...merged)
-      // localStorageへ保存
-      setLegacyValue(STORAGE_NOTES_KEY, notes.value)
-      // 最終同期情報
-      lastSyncedNotesJSON = JSON.stringify(newNotes)
-
-      if (!notes.value.some((note) => note.id === currentId.value)) {
-        currentId.value = notes.value[0]?.id ?? ''
+      const fallback = changes[STORAGE_NOTES_KEY]?.newValue
+      if (isStoredNoteArray(fallback)) {
+        applySyncedNotesUpdate(fallback)
       }
-
-      const activeNote = notes.value.find((note) => note.id === currentId.value)
-      text.value = activeNote ? activeNote.text : ''
-      refreshAllSyncStatuses()
-    } else if (newNotes === undefined) {
-      console.warn('[new-tab-note] storage.onChanged -> notes cleared, attempting recovery')
-      const legacyNotes = readLegacyValue(STORAGE_NOTES_KEY)
-      if (isStoredNoteArray(legacyNotes) && legacyNotes.length) {
-        // ローカルバックアップがあれば復旧し、同期領域へ書き戻す
-        const restoredNotes = legacyNotes.map(toLocalNote)
-        notes.value.splice(0, notes.value.length, ...restoredNotes)
-        lastSyncedNotesJSON = ''
-        if (!restoredNotes.some((note) => note.id === currentId.value)) {
-          currentId.value = notes.value[0]?.id ?? ''
-        }
-        const activeNote = notes.value.find((note) => note.id === currentId.value)
-        text.value = activeNote ? activeNote.text : ''
-        void saveNotesToStorage()
-      } else {
-        notes.value = []
-        setLegacyValue(STORAGE_NOTES_KEY, [])
-        lastSyncedNotesJSON = ''
-        currentId.value = ''
-        text.value = ''
-      }
-      refreshAllSyncStatuses()
-    }
+    })
   }
 
   /**
@@ -396,21 +499,105 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
    */
   const themeChange = changes[STORAGE_THEME_COLOR_KEY]
   if (themeChange && typeof themeChange.newValue === 'string') {
-    beginApplyingStorageUpdate()
-    const newTheme = themeChange.newValue as Theme
-    if (theme.value !== newTheme) {
-      theme.value = newTheme
-      setLegacyValue(STORAGE_THEME_COLOR_KEY, newTheme)
-    }
+    void runWithStorageUpdate(() => {
+      const newTheme = themeChange.newValue as Theme
+      if (theme.value !== newTheme) {
+        theme.value = newTheme
+        setLegacyValue(STORAGE_THEME_COLOR_KEY, newTheme)
+      }
+    })
   }
 }
 
 /**
+ * chrome.storage.syncへ同期対象ノート一覧を書き込む。
+ * @param payload 同期対象として整形済みのノート配列
+ * 1. JSONへシリアライズし、サイズが閾値以下なら単一キーに保存
+ * 2. 8KBを超える場合はチャンク分割して複数キーへ保存し、メタ情報を更新
+ * 3. チャンク数が減ったときは不要キーを掃除し、上限超過時はエラーを投げる
+ */
+const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
+  if (!hasSyncStorage) return
+
+  const json = JSON.stringify(payload)
+  const totalBytes = measureUtf8Bytes(json)
+
+  if (totalBytes <= SYNC_MAX_BYTES_PER_ITEM) {
+    await storageArea!.set({ [STORAGE_SYNCED_NOTES_KEY]: payload })
+    if (lastSyncedChunksCount > 0) {
+      const keysToRemove = Array.from({ length: lastSyncedChunksCount }, (_, index) =>
+        getSyncChunkKey(index)
+      )
+      if (keysToRemove.length) {
+        await storageArea!.remove(keysToRemove)
+      }
+      lastSyncedChunksCount = 0
+    }
+    return
+  }
+
+  if (totalBytes > SYNC_TOTAL_BYTES_LIMIT) {
+    const error = new Error('SYNC_TOTAL_LIMIT_EXCEEDED')
+    error.name = 'SyncStorageTotalLimitExceeded'
+    throw error
+  }
+
+  const chunks = chunkUtf8String(json, SYNC_CHUNK_SAFE_BYTES)
+  if (!chunks.length) {
+    await storageArea!.set({ [STORAGE_SYNCED_NOTES_KEY]: [] })
+    if (lastSyncedChunksCount > 0) {
+      const keysToRemove = Array.from({ length: lastSyncedChunksCount }, (_, index) =>
+        getSyncChunkKey(index)
+      )
+      if (keysToRemove.length) {
+        await storageArea!.remove(keysToRemove)
+      }
+      lastSyncedChunksCount = 0
+    }
+    return
+  }
+
+  for (const chunk of chunks) {
+    if (measureUtf8Bytes(chunk) > SYNC_MAX_BYTES_PER_ITEM) {
+      const error = new Error('SYNC_CHUNK_TOO_LARGE')
+      error.name = 'SyncStorageChunkTooLarge'
+      throw error
+    }
+  }
+
+  const data: Record<string, unknown> = {
+    [STORAGE_SYNCED_NOTES_KEY]: {
+      version: SYNC_CHUNK_META_VERSION,
+      chunkCount: chunks.length,
+      totalBytes,
+    },
+  }
+
+  chunks.forEach((chunk, index) => {
+    data[getSyncChunkKey(index)] = chunk
+  })
+
+  await storageArea!.set(data)
+
+  if (lastSyncedChunksCount > chunks.length) {
+    const keysToRemove = []
+    for (let i = chunks.length; i < lastSyncedChunksCount; i++) {
+      keysToRemove.push(getSyncChunkKey(i))
+    }
+    if (keysToRemove.length) {
+      await storageArea!.remove(keysToRemove)
+    }
+  }
+
+  lastSyncedChunksCount = chunks.length
+}
+
+/**
  * 現時点のノート配列をlocalStorage / chrome.storage.syncに保存する
- * @param {boolean} sync true のときのみchrome.storage.syncに書き込む
- * 1. ローカルバックアップを更新
- * 2. 同期無効や差分なしなら早期return
- * 3. 差分があれば chrome.storage.sync に書き込み、同期ステータスを更新
+ * @param sync true のときのみchrome.storage.syncに書き込む
+ * 1. ローカルバックアップを最新化
+ * 2. 同期対象リストに変更なければ終了
+ * 3. 差分があれば同期ストレージに書き込み結果を反映
  */
 const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
   const localSnapshot = notes.value.map((note) => ({ ...note }))
@@ -418,7 +605,13 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
   setLegacyValue(STORAGE_NOTES_KEY, localSnapshot)
 
   for (const note of notes.value) {
-    setSyncStatus(note.id, note.isSynced ? 'syncing' : 'off')
+    if (!note.isSynced) {
+      setSyncStatus(note.id, 'off')
+    } else if (note.text !== note.syncedText) {
+      setSyncStatus(note.id, 'syncing')
+    } else {
+      setSyncStatus(note.id, 'synced')
+    }
   }
 
   if (!sync || !hasSyncStorage) {
@@ -444,7 +637,7 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
   }
 
   try {
-    await storageArea!.set({ [STORAGE_SYNCED_NOTES_KEY]: syncedNotesPayload })
+    await writeSyncedNotesToStorage(syncedNotesPayload)
     lastSyncedNotesJSON = snapshot
     for (const note of notes.value) {
       if (note.isSynced) {
@@ -454,10 +647,40 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
     refreshAllSyncStatuses()
   } catch (error) {
     console.error(error)
+    const message = error instanceof Error ? (error.message ?? '') : String(error)
+    const errorName = error instanceof Error ? error.name : ''
+    const quotaExceeded =
+      errorName === 'SyncStorageTotalLimitExceeded' ||
+      errorName === 'SyncStorageChunkTooLarge' ||
+      message.includes('QUOTA_BYTES') ||
+      message.includes('QUOTA_BYTES_PER_ITEM')
+    const activeNoteId = currentId.value
+    const activeNote = notes.value.find((note) => note.id === activeNoteId)
     for (const note of notes.value) {
-      if (note.isSynced) {
-        setSyncStatus(note.id, 'error')
+      if (!note.isSynced) {
+        setSyncStatus(note.id, 'off')
+        continue
       }
+
+      if (quotaExceeded && activeNote && note.id === activeNote.id) {
+        note.isSynced = false
+        note.syncedText = null
+        setSyncStatus(note.id, 'off')
+        continue
+      }
+
+      if (note.text !== note.syncedText) {
+        setSyncStatus(note.id, 'error')
+      } else {
+        setSyncStatus(note.id, 'synced')
+      }
+    }
+    if (quotaExceeded) {
+      setLegacyValue(
+        STORAGE_NOTES_KEY,
+        notes.value.map((note) => ({ ...note }))
+      )
+      window.alert(MESSAGE_SYNC_QUOTA_EXCEEDED)
     }
   }
 }
@@ -515,11 +738,75 @@ const isStoredNoteArray = (value: unknown): value is StoredNotePayload[] => {
 }
 
 /**
+ * chrome.storage.syncから同期ノートを取得し、チャンク構成にも対応して復元する
+ * @param metaValue onChangedなどで受け取ったメタ情報
+ */
+const readSyncedNotesFromStorage = async (
+  metaValue?: unknown
+): Promise<{ notes: StoredNotePayload[] | undefined; chunkCount: number }> => {
+  if (!hasSyncStorage) {
+    return { notes: undefined, chunkCount: 0 }
+  }
+
+  let baseValue = metaValue
+  if (baseValue === undefined) {
+    const result = await storageArea!.get(STORAGE_SYNCED_NOTES_KEY)
+    baseValue = result[STORAGE_SYNCED_NOTES_KEY]
+  }
+
+  if (baseValue === undefined || baseValue === null) {
+    return { notes: undefined, chunkCount: 0 }
+  }
+
+  if (Array.isArray(baseValue)) {
+    return { notes: baseValue, chunkCount: 0 }
+  }
+
+  if (typeof baseValue === 'object') {
+    const meta = baseValue as Record<string, unknown>
+    const version = meta.version
+    const chunkCountValue = Number(meta.chunkCount ?? 0)
+    if (
+      version === SYNC_CHUNK_META_VERSION &&
+      Number.isFinite(chunkCountValue) &&
+      chunkCountValue >= 0
+    ) {
+      const chunkCount = Math.floor(chunkCountValue)
+      if (chunkCount === 0) {
+        return { notes: [], chunkCount: 0 }
+      }
+      const chunkKeys = Array.from({ length: chunkCount }, (_, index) => getSyncChunkKey(index))
+      const chunkResult = await storageArea!.get(chunkKeys)
+      const json = chunkKeys
+        .map((key) => {
+          const chunk = chunkResult[key]
+          return typeof chunk === 'string' ? chunk : ''
+        })
+        .join('')
+      if (!json) {
+        return { notes: [], chunkCount }
+      }
+      try {
+        const parsed = JSON.parse(json)
+        if (isStoredNoteArray(parsed)) {
+          return { notes: parsed, chunkCount }
+        }
+      } catch (error) {
+        console.error('[new-tab-note] Failed to parse synced notes chunks', error)
+      }
+      return { notes: [], chunkCount }
+    }
+  }
+
+  return { notes: undefined, chunkCount: 0 }
+}
+
+/**
  * storage.payloadをNote型に整形
  * @param payload chrome.storage.syncやlocalStorageから取り出した生データ
  */
 const toLocalNote = (payload: StoredNotePayload): Note => {
-  const isSynced = payload.isSynced !== false
+  const isSynced = payload.isSynced === true
   const syncedText =
     typeof payload.syncedText === 'string'
       ? payload.syncedText
@@ -624,8 +911,7 @@ const changeTheme = (colorName: string) => {
 const getRemoteNoteSnapshot = async (id: string): Promise<string | null> => {
   if (!hasSyncStorage) return null
   try {
-    const result = await storageArea!.get(STORAGE_SYNCED_NOTES_KEY)
-    const payload = result[STORAGE_SYNCED_NOTES_KEY] as SyncedStorageNote[] | undefined
+    const { notes: payload } = await readSyncedNotesFromStorage()
     if (!payload) return null
     const target = payload.find((note) => note.id === id)
     return target ? target.text : null
