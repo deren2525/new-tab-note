@@ -71,11 +71,100 @@
             <li
               v-for="menu in props.menus"
               :key="menu.id"
-              class="flex h-[36px] px-[8px] cursor-pointer items-center truncate relative group text-small"
+              class="flex h-[36px] px-[8px] cursor-pointer items-center gap-[4px] relative group text-small"
               :class="[props.currentNoteId === menu.id ? 'bg-bg_active' : '']"
               @click="handleChangeNote(menu.id)"
             >
-              {{ (menu.text.trim() || 'new note').substring(0, 25) }}
+              <span class="flex items-center justify-center w-[16px] pointer-events-none">
+                <!-- 同期中アイコン -->
+                <svg
+                  v-if="getStatus(menu.id) === 'syncing'"
+                  class="h-3 w-3 animate-spin text-icon_primary"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="opacity-75"
+                    d="M14 8A6 6 0 0 0 8 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <!-- 同期完了アイコン -->
+                <svg
+                  v-else-if="getStatus(menu.id) === 'synced'"
+                  class="h-3 w-3 text-green-500"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8L6.2 11 13 4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <!-- 同期エラーアイコン -->
+                <svg
+                  v-else-if="getStatus(menu.id) === 'error'"
+                  class="h-3 w-3 text-red-500"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M8 5V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path
+                    d="M8 11.5H8.01"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M8 2.5L14 13.5H2L8 2.5Z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <!-- 同期オフアイコン -->
+                <svg
+                  v-else-if="getStatus(menu.id) === 'off'"
+                  class="h-3.5 w-3.5 text-text_secondary"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5.5 12H11a2.5 2.5 0 0 0 .312-4.978A3.5 3.5 0 0 0 4.954 6.7a2.75 2.75 0 0 0 .384 5.3H5.5Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M3 3l10 10"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              <span class="flex-1 truncate pr-[32px]">
+                {{ (menu.text.trim() || 'new note').substring(0, 25) }}
+              </span>
               <button
                 v-if="menu.id === props.currentNoteId"
                 class="bg-bg_delete px-[8px] opacity-0 group-hover:opacity-100 transition-opacity absolute right-0 h-[36px] text-text_button_primary"
@@ -154,12 +243,15 @@
 </template>
 
 <script setup lang="ts">
-const MESSAGE_NEW_NOTE = chrome.i18n.getMessage('NEW_NOTE')
+const MESSAGE_NEW_NOTE = chrome.i18n.getMessage('NEW_NOTE') || 'New Note'
+
+type SyncStatus = 'off' | 'syncing' | 'synced' | 'error'
 
 type Props = {
-  menus: { id: string; text: string }[]
+  menus: { id: string; text: string; isSynced: boolean }[]
   currentNoteId: string
   isOpenMenu: boolean
+  syncStatuses: Record<string, SyncStatus>
 }
 const props = defineProps<Props>()
 
@@ -169,6 +261,17 @@ const emit = defineEmits<{
   (e: 'create'): void
   (e: 'toggleMenu', isOpenMenu: boolean): void
 }>()
+
+/**
+ * 同期ステータス取得
+ * @param {string} id ノートid
+ */
+const getStatus = (id: string): SyncStatus => {
+  return (
+    props.syncStatuses?.[id] ??
+    (props.menus.find((menu) => menu.id === id)?.isSynced ? 'synced' : 'off')
+  )
+}
 
 const handleDeleteNote = (menuId: string) => {
   emit('delete', menuId)
