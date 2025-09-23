@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex h-full border-r border-border_primary flex-col"
+    class="flex h-full border-r border-border_primary flex-col min-h-0"
     :class="[props.isOpenMenu ? 'w-[225px] min-w-[225px]' : 'w-[48px] min-w-[48px]']"
   >
     <!-- menu open/close -->
@@ -24,9 +24,9 @@
         </svg>
       </button>
     </div>
-    <div class="flex h-full flex-col">
+    <div class="flex h-full flex-col min-h-0">
       <!-- menu open -->
-      <div v-if="isOpenMenu" class="flex-1 flex flex-col">
+      <div v-if="isOpenMenu" class="flex-1 flex flex-col min-h-0">
         <div class="mb-[8px] border-b border-border_primary p-[8px]">
           <!-- create note -->
           <button
@@ -66,7 +66,7 @@
           </button>
         </div>
         <!-- note list -->
-        <div class="overflow-auto min-h-0 h-[calc(100svh-150px)]">
+        <div class="flex-1 overflow-y-auto min-h-0">
           <ul class="pb-[16px]">
             <li
               v-for="menu in props.menus"
@@ -238,6 +238,17 @@
           </button>
         </div>
       </div>
+      <div
+        v-if="props.isOpenMenu && props.syncUsageText"
+        class="shrink-0 border-t border-border_primary px-[12px] py-[12px]"
+      >
+        <div class="flex flex-col gap-[2px] text-small leading-tight text-text_secondary">
+          <span class="tracking-wide text-small text-text_secondary/70">
+            {{ props.syncUsageLabel || 'Sync storage usage' }}
+          </span>
+          <span class="text-text_primary text-small">{{ props.syncUsageText }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -252,6 +263,8 @@ type Props = {
   currentNoteId: string
   isOpenMenu: boolean
   syncStatuses: Record<string, SyncStatus>
+  syncUsageText?: string
+  syncUsageLabel?: string
 }
 const props = defineProps<Props>()
 

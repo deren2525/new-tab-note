@@ -354,6 +354,12 @@
         @keydown="handleKeydown"
       />
       <div
+        v-if="props.noteUsageText"
+        class="pointer-events-none absolute bottom-2 right-4 z-20 text-[11px] leading-none text-text_secondary bg-bg_secondary/80 rounded px-2 py-1"
+      >
+        {{ props.noteUsageLabel || 'Note size' }}: {{ props.noteUsageText }}
+      </div>
+      <div
         v-if="props.isFilter"
         class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto"
         style="backdrop-filter: blur(5px)"
@@ -381,6 +387,8 @@ type Props = {
   isSynced: boolean
   syncStatus: 'off' | 'syncing' | 'synced' | 'error'
   canSync: boolean
+  noteUsageText?: string
+  noteUsageLabel?: string
 }
 
 const props = defineProps<Props>()

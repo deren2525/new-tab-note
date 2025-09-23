@@ -11,6 +11,8 @@
         :current-note-id="currentId"
         :is-open-menu="isOpenSideMenu"
         :sync-statuses="syncStatusMap"
+        :sync-usage-label="MESSAGE_SYNC_USAGE_LABEL"
+        :sync-usage-text="syncUsageText"
         @delete="deleteNote"
         @create="createNote"
         @change="changeNote"
@@ -27,6 +29,8 @@
             :is-synced="currentNote?.isSynced ?? false"
             :sync-status="currentSyncStatus"
             :can-sync="hasSyncStorage"
+            :note-usage-text="currentNoteUsageText"
+            :note-usage-label="MESSAGE_NOTE_USAGE_LABEL"
             @filter="(v) => (isFilter = v)"
             @openPreview="isPreviewMode = true"
             @toggleSync="toggleNoteSync"
@@ -105,6 +109,8 @@ const theme = ref<Theme>('dark')
 const isInitialized = ref(false)
 // 各ノートの同期ステータス管理
 const syncStatusMap = ref<Record<string, SyncStatus>>({})
+// chrome.storage.sync 使用バイト数
+const syncUsageBytes = ref<number | null>(null)
 
 /**
  * 現在選択しているノートを取得
@@ -119,6 +125,30 @@ const currentNote = computed(() => {
  */
 const currentSyncStatus = computed<SyncStatus>(() => {
   return currentNote.value ? getSyncStatus(currentNote.value.id) : 'off'
+})
+
+/**
+ * chrome.storage.sync の総使用量の表示用テキスト
+ */
+const syncUsageText = computed(() => {
+  if (!hasSyncStorage || syncUsageBytes.value === null) return ''
+  const usedKB = syncUsageBytes.value / 1024
+  const totalKB = SYNC_TOTAL_BYTES_LIMIT / 1024
+  return `${usedKB.toFixed(1)} KB / ${totalKB.toFixed(0)} KB`
+})
+
+/**
+ * 現在編集中ノートの本文バイト数表示用テキスト
+ */
+const currentNoteUsageText = computed(() => {
+  const note = currentNote.value
+  if (!note) return ''
+  const bytes = measureUtf8Bytes(note.text)
+  if (!bytes) return '0 KB'
+  if (bytes < 1024) {
+    return `${bytes} B`
+  }
+  return `${(bytes / 1024).toFixed(1)} KB`
 })
 
 // カラーテーマ一覧
@@ -162,6 +192,8 @@ const MESSAGE_RESUME_SYNC_USE_LOCAL =
 const MESSAGE_SYNC_QUOTA_EXCEEDED =
   chrome.i18n.getMessage('SYNC_QUOTA_EXCEEDED') ||
   'Sync storage is full. Turn off sync or delete notes you do not need to free up space.'
+const MESSAGE_SYNC_USAGE_LABEL = chrome.i18n.getMessage('SYNC_USAGE_LABEL') || 'Sync storage usage'
+const MESSAGE_NOTE_USAGE_LABEL = chrome.i18n.getMessage('NOTE_USAGE_LABEL') || 'Note size'
 
 // ノート内容を同期保存する処理を1秒(1000ms)だけ遅らせて連続書き込みを防ぐための待機時間
 const NOTE_SAVE_DEBOUNCE = 1000
@@ -172,6 +204,41 @@ const hasSyncStorage = Boolean(storageArea)
 const utf8Encoder = new TextEncoder()
 
 let lastSyncedChunksCount = 0
+
+/**
+ * chrome.storage.sync の総使用バイト数を取得
+ */
+const getSyncBytesInUse = (): Promise<number> => {
+  return new Promise((resolve, reject) => {
+    if (!storageArea) {
+      resolve(0)
+      return
+    }
+    storageArea.getBytesInUse(null, (bytes) => {
+      const lastError = chrome.runtime?.lastError
+      if (lastError) {
+        reject(lastError)
+      } else {
+        resolve(bytes)
+      }
+    })
+  })
+}
+
+/**
+ * 表示用の同期バイト数更新
+ */
+const updateSyncUsageBytes = async () => {
+  if (!hasSyncStorage) {
+    syncUsageBytes.value = null
+    return
+  }
+  try {
+    syncUsageBytes.value = await getSyncBytesInUse()
+  } catch (error) {
+    console.error('[new-tab-note] Failed to read sync storage usage', error)
+  }
+}
 
 /**
  * syncStatusMap(各ノートの同期ステータス管理)に指定したノートの状態をセット
@@ -479,18 +546,24 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
 
       if (syncedPayload !== undefined && isStoredNoteArray(syncedPayload)) {
         applySyncedNotesUpdate(syncedPayload)
+        await updateSyncUsageBytes()
         return
       }
 
       if (metaValue === undefined) {
         handleSyncedNotesCleared()
+        await updateSyncUsageBytes()
         return
       }
 
       const fallback = changes[STORAGE_NOTES_KEY]?.newValue
       if (isStoredNoteArray(fallback)) {
         applySyncedNotesUpdate(fallback)
+        await updateSyncUsageBytes()
+        return
       }
+
+      await updateSyncUsageBytes()
     })
   }
 
@@ -615,19 +688,21 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
 
   if (!sync || !hasSyncStorage) {
     refreshAllSyncStatuses()
+    if (hasSyncStorage) {
+      await updateSyncUsageBytes()
+    } else {
+      syncUsageBytes.value = null
+    }
     return
   }
 
   const syncedNotesPayload: SyncedStorageNote[] = notes.value
-    .filter((note) => note.isSynced || note.syncedText !== null)
-    .map((note) => {
-      const remoteText = note.isSynced ? note.text : (note.syncedText ?? note.text)
-      return {
-        id: note.id,
-        text: remoteText,
-        isSynced: note.isSynced,
-      }
-    })
+    .filter((note) => note.isSynced)
+    .map((note) => ({
+      id: note.id,
+      text: note.text,
+      isSynced: true,
+    }))
 
   const snapshot = JSON.stringify(syncedNotesPayload)
   if (snapshot === lastSyncedNotesJSON) {
@@ -670,6 +745,7 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
         )
         window.alert(MESSAGE_SYNC_QUOTA_EXCEEDED)
       }
+      await updateSyncUsageBytes()
       return
     }
 
@@ -680,6 +756,7 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
       }
     }
     refreshAllSyncStatuses()
+    await updateSyncUsageBytes()
   } catch (error) {
     console.error(error)
     const message = error instanceof Error ? (error.message ?? '') : String(error)
@@ -717,6 +794,7 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
       )
       window.alert(MESSAGE_SYNC_QUOTA_EXCEEDED)
     }
+    await updateSyncUsageBytes()
   }
 }
 
@@ -1113,6 +1191,8 @@ onMounted(async () => {
     shouldSaveAfterInit = false
     await saveNotesToStorage()
   }
+
+  await updateSyncUsageBytes()
 
   if (chrome?.storage?.onChanged) {
     chrome.storage.onChanged.addListener(storageChangeHandler)
