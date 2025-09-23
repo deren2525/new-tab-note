@@ -161,7 +161,7 @@ const MESSAGE_RESUME_SYNC_USE_LOCAL =
   'This note differs from its content before sync was stopped. Do you want to resume syncing with the current content?'
 const MESSAGE_SYNC_QUOTA_EXCEEDED =
   chrome.i18n.getMessage('SYNC_QUOTA_EXCEEDED') ||
-  'Sync storage is full. Please clean up unnecessary notes.'
+  'Sync storage is full. Turn off sync or delete notes you do not need to free up space.'
 
 // ノート内容を同期保存する処理を1秒(1000ms)だけ遅らせて連続書き込みを防ぐための待機時間
 const NOTE_SAVE_DEBOUNCE = 1000
@@ -517,7 +517,9 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
  * 3. チャンク数が減ったときは不要キーを掃除し、上限超過時はエラーを投げる
  */
 const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
-  if (!hasSyncStorage) return
+  if (!hasSyncStorage) {
+    return { success: true }
+  }
 
   const json = JSON.stringify(payload)
   const totalBytes = measureUtf8Bytes(json)
@@ -533,13 +535,11 @@ const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
       }
       lastSyncedChunksCount = 0
     }
-    return
+    return { success: true }
   }
 
   if (totalBytes > SYNC_TOTAL_BYTES_LIMIT) {
-    const error = new Error('SYNC_TOTAL_LIMIT_EXCEEDED')
-    error.name = 'SyncStorageTotalLimitExceeded'
-    throw error
+    return { success: false, reason: 'total-limit', totalBytes }
   }
 
   const chunks = chunkUtf8String(json, SYNC_CHUNK_SAFE_BYTES)
@@ -554,14 +554,12 @@ const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
       }
       lastSyncedChunksCount = 0
     }
-    return
+    return { success: true }
   }
 
   for (const chunk of chunks) {
     if (measureUtf8Bytes(chunk) > SYNC_MAX_BYTES_PER_ITEM) {
-      const error = new Error('SYNC_CHUNK_TOO_LARGE')
-      error.name = 'SyncStorageChunkTooLarge'
-      throw error
+      return { success: false, reason: 'chunk-limit', totalBytes }
     }
   }
 
@@ -590,6 +588,7 @@ const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
   }
 
   lastSyncedChunksCount = chunks.length
+  return { success: true }
 }
 
 /**
@@ -637,7 +636,43 @@ const saveNotesToStorage = async ({ sync = true }: { sync?: boolean } = {}) => {
   }
 
   try {
-    await writeSyncedNotesToStorage(syncedNotesPayload)
+    const writeResult = await writeSyncedNotesToStorage(syncedNotesPayload)
+    if (writeResult?.success === false) {
+      const quotaExceeded = writeResult.reason === 'total-limit'
+      const chunkTooLarge = writeResult.reason === 'chunk-limit'
+      const activeNoteId = currentId.value
+      const activeNote = notes.value.find((note) => note.id === activeNoteId)
+
+      for (const note of notes.value) {
+        if (!note.isSynced) {
+          setSyncStatus(note.id, 'off')
+          continue
+        }
+
+        if ((quotaExceeded || chunkTooLarge) && activeNote && note.id === activeNote.id) {
+          note.isSynced = false
+          note.syncedText = null
+          setSyncStatus(note.id, 'off')
+          continue
+        }
+
+        if (note.text !== note.syncedText) {
+          setSyncStatus(note.id, 'error')
+        } else {
+          setSyncStatus(note.id, 'synced')
+        }
+      }
+
+      if (quotaExceeded || chunkTooLarge) {
+        setLegacyValue(
+          STORAGE_NOTES_KEY,
+          notes.value.map((note) => ({ ...note }))
+        )
+        window.alert(MESSAGE_SYNC_QUOTA_EXCEEDED)
+      }
+      return
+    }
+
     lastSyncedNotesJSON = snapshot
     for (const note of notes.value) {
       if (note.isSynced) {

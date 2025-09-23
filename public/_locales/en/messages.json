@@ -30,7 +30,7 @@
     "message": "When sync is on, this note is available on all devices using the same Chrome account. When sync is off, it is saved only on this device."
   },
   "SYNC_QUOTA_EXCEEDED": {
-    "message": "Sync storage is full. Please clean up unnecessary notes."
+    "message": "Sync storage is full. Turn off sync or delete notes you do not need to free up space."
   },
   "RESUME_EDIT_ALERT": {
     "message": "To resume editing, please clear the filter."
