@@ -4,10 +4,11 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   manifest: {
     name: '__MSG_NAME__',
-    version: '3.0.4',
+    version: '3.2.2',
     description: '__MSG_DESCRIPTION__',
     manifest_version: 3,
     default_locale: 'en',
+    permissions: ['storage'],
     action: {
       default_icon: {
         '48': 'icon/icon.png',

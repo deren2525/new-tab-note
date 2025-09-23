@@ -6,10 +6,31 @@
     "message": "This extension allows you to use your new tab as a notepad!"
   },
   "INIT_TEXT": {
-    "message": "# Welcome to NEW TAB NOTE!!\n\nThank you for downloading NEW TAB NOTE! 🎉\nNEW TAB NOTE a new tab extension for notes 📖\nLet's edit by pressing the pencil mark in the upper left!\n\n## Example\n\n### ■ Emphasis\n*This text will be italic.*\n**This text will be bold.**\n*You **can** combine them.*\n\n### ■ Lists\n\n####  Unordered\n* Item 1\n* Item 2\n  * Item 2a\n  * Item 2b\n\n#### Ordered\n1. Item 1\n2. Item 2\n3. Item 3\n\n### ■ Link\n[Chrome Web Store](https://chrome.google.com/webstore/category/extensions?hl=en&)\n\n### ■ Task Lists\n- [ ] Task 1\n- [X] Task 2\n\n### ■ Blockquote\n> **note**\n> element is used to indicate the quotation of a large section of text from another source.\n\n### ■ Code\n```\nif (isAwesome) {\n  return true\n}\n```\n"
+    "message": "# Welcome to NEW TAB NOTE!!\n\nThank you for downloading NEW TAB NOTE! 🎉\nNEW TAB NOTE a new tab extension for notes 📖\nClick the “New Note” button in the top left to start editing!\n\n## Example\n\n### ■ Emphasis\n*This text will be italic.*\n**This text will be bold.**\n*You **can** combine them.*\n\n### ■ Lists\n\n####  Unordered\n* Item 1\n* Item 2\n  * Item 2a\n  * Item 2b\n\n#### Ordered\n1. Item 1\n2. Item 2\n3. Item 3\n\n### ■ Link\n[Chrome Web Store](https://chrome.google.com/webstore/category/extensions?hl=en&)\n\n### ■ Task Lists\n- [ ] Task 1\n- [X] Task 2\n\n### ■ Blockquote\n> **note**\n> element is used to indicate the quotation of a large section of text from another source.\n\n### ■ Code\n```\nif (isAwesome) {\n  return true\n}\n```\n"
   },
   "CONFIRM_DELETE_NOTE": {
     "message": "Are you sure you want to delete this note?"
+  },
+  "CONFIRM_DELETE_SYNCED_NOTE": {
+    "message": "Deleting this note will remove it from all synced devices. If needed, please back it up before deleting."
+  },
+  "SYNC_BUTTON_ON": {
+    "message": "Sync ON"
+  },
+  "SYNC_BUTTON_OFF": {
+    "message": "Sync OFF"
+  },
+  "SYNC_RESUME_USE_LOCAL": {
+    "message": "This note differs from its content before sync was stopped. Do you want to resume syncing with the current content?"
+  },
+  "SYNC_LABEL": {
+    "message": "Sync"
+  },
+  "SYNC_INFO": {
+    "message": "When sync is on, this note is available on all devices using the same Chrome account. When sync is off, it is saved only on this device."
+  },
+  "SYNC_QUOTA_EXCEEDED": {
+    "message": "Sync storage is full. Turn off sync or delete notes you do not need to free up space."
   },
   "RESUME_EDIT_ALERT": {
     "message": "To resume editing, please clear the filter."

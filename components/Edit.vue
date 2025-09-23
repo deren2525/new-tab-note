@@ -5,7 +5,134 @@
         >Edit</span
       >
       <div class="flex">
-        <div class="relative flex">
+        <div v-if="props.canSync" class="relative flex items-center gap-[4px]">
+          <div class="flex items-center gap-[4px]">
+            <div class="flex items-center pointer-events-none">
+              <!-- 同期中アイコン -->
+              <svg
+                v-if="props.syncStatus === 'syncing'"
+                class="h-4 w-4 animate-spin text-icon_primary"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="8"
+                  cy="8"
+                  r="6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  class="opacity-75"
+                  d="M14 8A6 6 0 0 0 8 2"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <!-- 同期完了アイコン -->
+              <svg
+                v-else-if="props.syncStatus === 'synced'"
+                class="h-4 w-4 text-green-500"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 8L6.2 11 13 4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <!-- 同期エラーアイコン -->
+              <svg
+                v-else-if="props.syncStatus === 'error'"
+                class="h-4 w-4 text-red-500"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M8 5V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path
+                  d="M8 11.5H8.01"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M8 2.5L14 13.5H2L8 2.5Z"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <!-- 同期オフアイコン -->
+              <svg
+                v-else
+                class="h-4 w-4 text-text_secondary"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M5.5 12H11a2.5 2.5 0 0 0 .312-4.978A3.5 3.5 0 0 0 4.954 6.7a2.75 2.75 0 0 0 .384 5.3H5.5Z"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M3 3l10 10"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <!-- 同期オンオフボタン -->
+            <div
+              class="relative flex items-center gap-[6px] text-small text-text_primary cursor-help"
+              @mouseenter="showSyncInfo = true"
+              @mouseleave="showSyncInfo = false"
+              @focusin="showSyncInfo = true"
+              @focusout="showSyncInfo = false"
+            >
+              <span class="text-small">{{ LABEL_SYNC }}</span>
+              <button
+                class="relative inline-flex h-[20px] w-[40px] items-center rounded-full border border-border_primary transition-colors duration-200 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-bg_button_primary"
+                :class="[
+                  props.isSynced
+                    ? 'bg-bg_button_primary border-bg_button_primary'
+                    : 'bg-bg_secondary',
+                ]"
+                role="switch"
+                :aria-checked="props.isSynced"
+                :aria-label="props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF"
+                :disabled="!props.noteId"
+                @click="$emit('toggleSync', props.noteId)"
+              >
+                <span class="sr-only">
+                  {{ props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF }}
+                </span>
+                <span
+                  class="absolute left-[2px] h-[16px] w-[16px] rounded-full bg-white shadow transition-transform duration-200"
+                  :class="[props.isSynced ? 'translate-x-[20px]' : 'translate-x-0']"
+                ></span>
+              </button>
+              <div
+                v-if="showSyncInfo"
+                class="absolute z-30 top-full right-0 mt-2 w-[260px] max-w-[calc(100vw-24px)] rounded bg-bg_primary text-text_primary text-small shadow-lg p-[10px]"
+              >
+                <p class="whitespace-pre-line text-small">{{ MESSAGE_SYNC_INFO }}</p>
+              </div>
+            </div>
+          </div>
+
           <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
             <svg
               v-if="isFilter"
@@ -117,6 +244,105 @@
             </div>
           </div>
         </div>
+        <div v-else class="flex items-center">
+          <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
+            <svg
+              v-if="isFilter"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M13 10.6667L11.3499 8.40253"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 11.6666V9.33331"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3 10.6667L4.64597 8.40826"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <svg
+              v-else
+              width="16"
+              height="17"
+              viewBox="0 0 16 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
+                fill="currentColor"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+          <button
+            v-if="!props.isPreviewMode"
+            class="flex p-[8px] text-icon_primary"
+            @click="handleOpenPreview"
+          >
+            <svg
+              width="16"
+              height="17"
+              viewBox="0 0 16 17"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 2.5L8 14.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
     <div class="flex-1 min-h-0 flex flex-col relative">
@@ -140,11 +366,21 @@
 <script setup lang="ts">
 import { watch, ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 
+const MESSAGE_SYNC_BUTTON_ON = chrome.i18n.getMessage('SYNC_BUTTON_ON') || 'Sync ON'
+const MESSAGE_SYNC_BUTTON_OFF = chrome.i18n.getMessage('SYNC_BUTTON_OFF') || 'Sync OFF'
+const LABEL_SYNC = chrome.i18n.getMessage('SYNC_LABEL') || 'Sync'
+const MESSAGE_SYNC_INFO =
+  chrome.i18n.getMessage('SYNC_INFO') ||
+  'When sync is on, this note is available on all devices using the same Chrome account. When sync is off, it is saved only on this device.'
+
 type Props = {
   isFilter: boolean
   isPreviewMode: boolean
   modelValue: string
   noteId: string
+  isSynced: boolean
+  syncStatus: 'off' | 'syncing' | 'synced' | 'error'
+  canSync: boolean
 }
 
 const props = defineProps<Props>()
@@ -152,11 +388,14 @@ const emit = defineEmits<{
   (e: 'filter', isFilter: boolean): void
   (e: 'openPreview'): void
   (e: 'update:modelValue', value: string): void
+  (e: 'toggleSync', noteId: string): void
 }>()
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const isComposing = ref(false)
-const MESSAGE_RESUME_EDIT = chrome.i18n.getMessage('RESUME_EDIT_ALERT')
+const showSyncInfo = ref(false)
+const MESSAGE_RESUME_EDIT =
+  chrome.i18n.getMessage('RESUME_EDIT_ALERT') || 'To resume editing, please clear the filter.'
 
 onMounted(() => {
   nextTick(adjustHeight)
