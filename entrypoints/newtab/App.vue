@@ -128,7 +128,8 @@ const currentSyncStatus = computed<SyncStatus>(() => {
 })
 
 /**
- * chrome.storage.sync の総使用量の表示用テキスト
+ * chrome.storage.sync の総使用量を表示させるために整形
+ * @returns {string} "x.x KB / 100 KB" 文字列
  */
 const syncUsageText = computed(() => {
   if (!hasSyncStorage || syncUsageBytes.value === null) return ''
@@ -138,7 +139,8 @@ const syncUsageText = computed(() => {
 })
 
 /**
- * 現在編集中ノートの本文バイト数表示用テキスト
+ * 現在編集中ノートの本文バイト数をB/KB単位の文字列へ整形
+ * @returns {string} "xxx B" or "x.x KB" 文字列
  */
 const currentNoteUsageText = computed(() => {
   const note = currentNote.value
@@ -207,6 +209,7 @@ let lastSyncedChunksCount = 0
 
 /**
  * chrome.storage.sync の総使用バイト数を取得
+ * @returns {Promise<number>} 利用バイト数
  */
 const getSyncBytesInUse = (): Promise<number> => {
   return new Promise((resolve, reject) => {
@@ -226,7 +229,8 @@ const getSyncBytesInUse = (): Promise<number> => {
 }
 
 /**
- * 表示用の同期バイト数更新
+ * 表示用の同期バイト数リアクティブ値を最新化
+ * @returns {Promise<void>} 更新完了時に解決する Promise
  */
 const updateSyncUsageBytes = async () => {
   if (!hasSyncStorage) {
@@ -287,6 +291,7 @@ const refreshAllSyncStatuses = () => {
 /**
  * 指定したノートの同期ステータスを取得
  * @param {string} id ノートid
+ * @returns {SyncStatus} 現在の同期ステータス
  */
 const getSyncStatus = (id: string): SyncStatus => {
   return syncStatusMap.value[id] ?? 'off'
@@ -304,6 +309,7 @@ const setThemeColor = (value: string) => {
  * localStorageに残っている旧データを読み込み
  * 適切な型に変換して返す
  * @param {string} key localStorage key
+ * @returns 変換された値
  */
 const readLegacyValue = (key: string) => {
   const raw = window.localStorage.getItem(key)
@@ -335,11 +341,18 @@ const setLegacyValue = (key: string, value: unknown) => {
   }
 }
 
-const measureUtf8Bytes = (input: string) => {
+/**
+ * 文字列をUTF-8としてシリアライズした時のバイト数を取得
+ * @param {string} input 入力テキスト
+ */
+const measureUtf8Bytes = (input: string): number => {
   return utf8Encoder.encode(input).length
 }
 
-const chunkUtf8String = (input: string, maxBytes: number) => {
+/**
+ * UTF-8文字列を最大バイト数ごとに分割した配列を生成
+ */
+const chunkUtf8String = (input: string, maxBytes: number): string[] => {
   if (maxBytes <= 0) return []
   const encoder = new TextEncoder()
   const decoder = new TextDecoder()
@@ -365,7 +378,10 @@ const chunkUtf8String = (input: string, maxBytes: number) => {
   return chunks
 }
 
-const getSyncChunkKey = (index: number) => {
+/**
+ * 同期チャンク保存用のキー名を生成
+ */
+const getSyncChunkKey = (index: number): string => {
   return `${SYNC_CHUNK_KEY_PREFIX}${index}`
 }
 
@@ -374,6 +390,7 @@ const getSyncChunkKey = (index: number) => {
  * chrome.storage.syncが使えるならそこから非同期に取得
  * 使えない場合はlocalStorageの旧データを読み込んで返す
  * @param {string[]} keys
+ * @returns {Promise<Record<string, unknown>>} キーと値のマップ
  */
 const getStorageValues = async (keys: string[]) => {
   if (hasSyncStorage) {
@@ -426,6 +443,7 @@ let storageUpdateReleaseTimerId: ReturnType<typeof setTimeout> | null = null
 /**
  * storage.onChanged の反映処理中であることのフラグを立てる
  * 完了後に自動解除する
+ * @param {() => void | Promise<void>} task 反映処理
  */
 const runWithStorageUpdate = async (task: () => void | Promise<void>) => {
   isApplyingStorageUpdate = true
@@ -588,6 +606,7 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
  * 1. JSONへシリアライズし、サイズが閾値以下なら単一キーに保存
  * 2. 8KBを超える場合はチャンク分割して複数キーへ保存し、メタ情報を更新
  * 3. チャンク数が減ったときは不要キーを掃除し、上限超過時はエラーを投げる
+ * @returns 保存結果
  */
 const writeSyncedNotesToStorage = async (payload: SyncedStorageNote[]) => {
   if (!hasSyncStorage) {
@@ -817,6 +836,9 @@ const queueSaveNotes = () => {
   }, NOTE_SAVE_DEBOUNCE)
 }
 
+/**
+ * 保留中の保存処理を即時に実行
+ */
 const flushQueuedNotesSave = () => {
   if (!isInitialized.value) {
     shouldSaveAfterInit = true
@@ -833,6 +855,7 @@ const flushQueuedNotesSave = () => {
 /**
  * ノート配列かどうか
  * @param value ノート配列候補
+ * @returns {value is StoredNotePayload[]} ノート配列判定
  */
 const isStoredNoteArray = (value: unknown): value is StoredNotePayload[] => {
   return (
@@ -853,6 +876,7 @@ const isStoredNoteArray = (value: unknown): value is StoredNotePayload[] => {
 /**
  * chrome.storage.syncから同期ノートを取得し、チャンク構成にも対応して復元する
  * @param metaValue onChangedなどで受け取ったメタ情報
+ * @returns 復元結果
  */
 const readSyncedNotesFromStorage = async (
   metaValue?: unknown
@@ -917,6 +941,7 @@ const readSyncedNotesFromStorage = async (
 /**
  * storage.payloadをNote型に整形
  * @param payload chrome.storage.syncやlocalStorageから取り出した生データ
+ * @returns {Note} 変換後ノート情報
  */
 const toLocalNote = (payload: StoredNotePayload): Note => {
   const isSynced = payload.isSynced === true
@@ -1002,11 +1027,11 @@ const deleteNote = async (id: string) => {
 
 /**
  * 現在表示するノートを切り替える
- * @param {string} id ノートid
+ * @param {string} noteId ノートid
  */
-const changeNote = (id: string) => {
-  if (currentId.value === id) return
-  currentId.value = id
+const changeNote = (noteId: string) => {
+  if (currentId.value === noteId) return
+  currentId.value = noteId
 }
 
 /**
@@ -1020,6 +1045,7 @@ const changeTheme = (colorName: string) => {
 /**
  * chrome.storage.sync に保存されている指定ノートの本文を取得
  * @param {string} id ノートid
+ * @returns {Promise<string | null>} 取得した本文
  */
 const getRemoteNoteSnapshot = async (id: string): Promise<string | null> => {
   if (!hasSyncStorage) return null

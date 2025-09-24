@@ -286,16 +286,30 @@ const getStatus = (id: string): SyncStatus => {
   )
 }
 
-const handleDeleteNote = (menuId: string) => {
-  emit('delete', menuId)
+/**
+ * ノート削除押下
+ * @param {string} noteId ノートID
+ */
+const handleDeleteNote = (noteId: string) => {
+  emit('delete', noteId)
 }
+/**
+ * 新規ノート作成押下
+ */
 const handleCreateNote = () => {
   emit('create')
 }
-const handleChangeNote = (menuId: string) => {
-  emit('change', menuId)
+/**
+ * 選択ノート変更押下
+ * @param {string} noteId ノートID
+ */
+const handleChangeNote = (noteId: string) => {
+  emit('change', noteId)
 }
 
+/**
+ * サイドメニューの開閉トグル
+ */
 const handleToggleMenu = () => {
   emit('toggleMenu', !props.isOpenMenu)
 }

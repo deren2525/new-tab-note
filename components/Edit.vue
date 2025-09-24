@@ -423,26 +423,41 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', setMinimumHeight)
 })
 
+/**
+ * フィルターモードのON/OFFのトグル
+ * @param {boolean} isFilter 現在のフィルター状態
+ */
 const handleFilter = (isFilter: boolean) => {
   emit('filter', !isFilter)
 }
 
+/**
+ * プレビュー表示押下
+ */
 const handleOpenPreview = () => {
   emit('openPreview')
 }
 
+/**
+ * 入力更新
+ * @param {Event} e 入力イベント
+ */
 const handleInput = (e: Event) => {
   emit('update:modelValue', (e.target as HTMLTextAreaElement).value)
 }
 
-// テキストエリア最低高さ
+/**
+ * テキストエリアの最小高さ自動化
+ */
 const setMinimumHeight = () => {
   if (!textareaRef.value) return
   const minHeight = window.innerHeight - 70
   textareaRef.value.style.minHeight = `${minHeight}px`
 }
 
-// テキストエリア高さ自動調整
+/**
+ * テキストエリアの高さ自動調整
+ */
 const adjustHeight = () => {
   const el = textareaRef.value
   if (!el) return
@@ -450,7 +465,10 @@ const adjustHeight = () => {
   el.style.height = el.scrollHeight + 'px'
 }
 
-// Tab/Enterキー対応（リスト補完など）
+/**
+ * Tab/Enter やショートカットキーに応じたMarkdown編集補助
+ * @param {KeyboardEvent} e キーイベント
+ */
 const handleKeydown = (e: KeyboardEvent) => {
   if (isComposing.value) return
 
@@ -575,7 +593,9 @@ const handleKeydown = (e: KeyboardEvent) => {
   }
 }
 
-// [](url) 生成（Ctrl+K）
+/**
+ * 選択範囲をMarkdownリンク形式へ変換（Ctrl/Cmd+K）
+ */
 const wrapLinkExec = () => {
   const el = textareaRef.value
   if (!el) return
@@ -621,6 +641,10 @@ const wrapLinkExec = () => {
   }
 }
 
+/**
+ * 選択範囲を指定wrapperで囲い、元の選択位置を維持
+ * @param {string} wrapper 囲み文字（例: "*" や "**"）
+ */
 const wrapSelectionExec = (wrapper: string) => {
   const el = textareaRef.value
   if (!el) return
@@ -651,6 +675,9 @@ const wrapSelectionExec = (wrapper: string) => {
 const showTooltip = ref(false)
 let tooltipTimeout: ReturnType<typeof setTimeout> | null = null
 
+/**
+ * フィルター中にタップした時にツールチップを一定時間表示させる
+ */
 const handleFilterTouch = () => {
   showTooltip.value = true
   if (tooltipTimeout) {
