@@ -196,16 +196,179 @@ const MESSAGE_SYNC_QUOTA_EXCEEDED =
   'Sync storage is full. Turn off sync or delete notes you do not need to free up space.'
 const MESSAGE_SYNC_USAGE_LABEL = chrome.i18n.getMessage('SYNC_USAGE_LABEL') || 'Sync storage usage'
 const MESSAGE_NOTE_USAGE_LABEL = chrome.i18n.getMessage('NOTE_USAGE_LABEL') || 'Note size'
+const LOCAL_PERSISTED_KEYS = [
+  STORAGE_NOTES_KEY,
+  STORAGE_TARGET_NOTE_ID_KEY,
+  STORAGE_FILTER_KEY,
+  STORAGE_PREVIEW_MODE_KEY,
+  STORAGE_THEME_COLOR_KEY,
+  STORAGE_SIDE_MENU_OPEN_KEY,
+  STORAGE_SYNCED_NOTES_KEY,
+]
+const legacyStorageCache: Record<string, unknown> = {}
 
 // ノート内容を同期保存する処理を1秒(1000ms)だけ遅らせて連続書き込みを防ぐための待機時間
 const NOTE_SAVE_DEBOUNCE = 1000
 // chrome.storage.sync
 const storageArea = chrome?.storage?.sync
+const localStorageArea = chrome?.storage?.local
 // chrome.storage.sync が利用できる環境かどうか
 const hasSyncStorage = Boolean(storageArea)
 const utf8Encoder = new TextEncoder()
 
 let lastSyncedChunksCount = 0
+
+/**
+ * 深いコピーを作成し、ストレージへの保存・読み出しで参照共有を避ける
+ * @template T
+ * @param {T} value クローン元値
+ * @returns {T} クローン値
+ */
+const clonePersistedValue = <T,>(value: T): T => {
+  if (value === null || value === undefined) {
+    return value
+  }
+  if (typeof value === 'object') {
+    try {
+      return JSON.parse(JSON.stringify(value))
+    } catch {
+      return value
+    }
+  }
+  return value
+}
+
+/**
+ * window.localStorage から値を読み込み、適切にパース
+ * @param {string} key 読み込みキー
+ * @returns {unknown} パース済みの値
+ */
+const readWindowLocalValue = (key: string) => {
+  const raw = window.localStorage.getItem(key)
+  if (raw === null) return undefined
+  if (raw === 'true') return true
+  if (raw === 'false') return false
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return raw
+  }
+}
+
+/**
+ * chrome.storage.local と localStorage の値からローカルキャッシュを構築
+ * @returns {Promise<void>} 完了時に解決
+ */
+const hydrateLegacyCache = async () => {
+  if (localStorageArea) {
+    try {
+      const result = await localStorageArea.get(LOCAL_PERSISTED_KEYS)
+      for (const key of LOCAL_PERSISTED_KEYS) {
+        if (key in result) {
+          legacyStorageCache[key] = clonePersistedValue(result[key])
+        } else {
+          const fallback = readWindowLocalValue(key)
+          if (fallback !== undefined) {
+            legacyStorageCache[key] = clonePersistedValue(fallback)
+          } else {
+            delete legacyStorageCache[key]
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[new-tab-note] Failed to hydrate local cache', error)
+      for (const key of LOCAL_PERSISTED_KEYS) {
+        const fallback = readWindowLocalValue(key)
+        if (fallback !== undefined) {
+          legacyStorageCache[key] = clonePersistedValue(fallback)
+        } else {
+          delete legacyStorageCache[key]
+        }
+      }
+    }
+  } else {
+    for (const key of LOCAL_PERSISTED_KEYS) {
+      const fallback = readWindowLocalValue(key)
+      if (fallback !== undefined) {
+        legacyStorageCache[key] = clonePersistedValue(fallback)
+      } else {
+        delete legacyStorageCache[key]
+      }
+    }
+  }
+}
+
+/**
+ * キャッシュ済みローカルストレージ値をアプリ状態へ反映
+ * @param {string[]} keys 変更対象キー
+ * @returns {void}
+ */
+const applyLocalStateFromCache = (keys: string[]) => {
+  let refreshed = false
+
+  if (keys.includes(STORAGE_NOTES_KEY)) {
+    const localNotes = readLegacyValue(STORAGE_NOTES_KEY)
+    if (isStoredNoteArray(localNotes)) {
+      const mapped = localNotes.map(toLocalNote)
+      notes.value.splice(0, notes.value.length, ...mapped)
+    } else if (localNotes === undefined) {
+      notes.value = []
+    }
+
+    if (!notes.value.some((note) => note.id === currentId.value)) {
+      currentId.value = notes.value[0]?.id ?? ''
+    }
+
+    const activeNote = notes.value.find((note) => note.id === currentId.value)
+    text.value = activeNote ? activeNote.text : ''
+    refreshAllSyncStatuses()
+    refreshed = true
+  }
+
+  if (keys.includes(STORAGE_TARGET_NOTE_ID_KEY)) {
+    const target = readLegacyValue(STORAGE_TARGET_NOTE_ID_KEY)
+    if (typeof target === 'string') {
+      currentId.value = target
+    } else if (target === undefined) {
+      currentId.value = notes.value[0]?.id ?? ''
+    }
+    const activeNote = notes.value.find((note) => note.id === currentId.value)
+    text.value = activeNote ? activeNote.text : ''
+  }
+
+  if (keys.includes(STORAGE_FILTER_KEY)) {
+    const filterValue = readLegacyValue(STORAGE_FILTER_KEY)
+    if (typeof filterValue === 'boolean') {
+      isFilter.value = filterValue
+    }
+  }
+
+  if (keys.includes(STORAGE_PREVIEW_MODE_KEY)) {
+    const previewValue = readLegacyValue(STORAGE_PREVIEW_MODE_KEY)
+    if (typeof previewValue === 'boolean') {
+      isPreviewMode.value = previewValue
+    }
+  }
+
+  if (keys.includes(STORAGE_THEME_COLOR_KEY)) {
+    const themeValue = readLegacyValue(STORAGE_THEME_COLOR_KEY)
+    if (typeof themeValue === 'string' && theme.value !== themeValue) {
+      theme.value = themeValue as Theme
+      setThemeColor(theme.value)
+    }
+  }
+
+  if (keys.includes(STORAGE_SIDE_MENU_OPEN_KEY)) {
+    const sideMenu = readLegacyValue(STORAGE_SIDE_MENU_OPEN_KEY)
+    if (typeof sideMenu === 'boolean') {
+      isOpenSideMenu.value = sideMenu
+    }
+  }
+
+  if (!refreshed && keys.includes(STORAGE_NOTES_KEY)) {
+    refreshAllSyncStatuses()
+  }
+}
 
 /**
  * chrome.storage.sync の総使用バイト数を取得
@@ -312,15 +475,14 @@ const setThemeColor = (value: string) => {
  * @returns 変換された値
  */
 const readLegacyValue = (key: string) => {
-  const raw = window.localStorage.getItem(key)
-  if (raw === null) return undefined
-  if (raw === 'true') return true
-  if (raw === 'false') return false
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return raw
+  if (Object.prototype.hasOwnProperty.call(legacyStorageCache, key)) {
+    return clonePersistedValue(legacyStorageCache[key])
   }
+  const fallback = readWindowLocalValue(key)
+  if (fallback !== undefined) {
+    legacyStorageCache[key] = clonePersistedValue(fallback)
+  }
+  return clonePersistedValue(fallback)
 }
 
 /**
@@ -331,14 +493,34 @@ const readLegacyValue = (key: string) => {
  */
 const setLegacyValue = (key: string, value: unknown) => {
   if (value === undefined) {
+    delete legacyStorageCache[key]
     window.localStorage.removeItem(key)
+    if (localStorageArea) {
+      void localStorageArea.remove(key)
+    }
+    applyLocalStateFromCache([key])
     return
   }
-  if (typeof value === 'string') {
-    window.localStorage.setItem(key, value)
-  } else {
-    window.localStorage.setItem(key, JSON.stringify(value))
+  const cloned = clonePersistedValue(value)
+  legacyStorageCache[key] = cloned
+  try {
+    if (typeof cloned === 'string') {
+      window.localStorage.setItem(key, cloned)
+    } else {
+      window.localStorage.setItem(key, JSON.stringify(cloned))
+    }
+  } catch (error) {
+    console.error('[new-tab-note] Failed to persist to localStorage', error)
   }
+  if (localStorageArea) {
+    const payload = clonePersistedValue(cloned)
+    try {
+      void localStorageArea.set({ [key]: payload })
+    } catch (error) {
+      console.error('[new-tab-note] Failed to persist to chrome.storage.local', error)
+    }
+  }
+  applyLocalStateFromCache([key])
 }
 
 /**
@@ -548,6 +730,25 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
   changes,
   areaName
 ) => {
+  if (areaName === 'local') {
+    const relevantKeys = [
+      STORAGE_NOTES_KEY,
+      STORAGE_TARGET_NOTE_ID_KEY,
+      STORAGE_FILTER_KEY,
+      STORAGE_PREVIEW_MODE_KEY,
+      STORAGE_THEME_COLOR_KEY,
+      STORAGE_SIDE_MENU_OPEN_KEY,
+    ]
+    const changedKeys = relevantKeys.filter((key) => key in changes)
+    if (!changedKeys.length) return
+
+    void runWithStorageUpdate(async () => {
+      await hydrateLegacyCache()
+      applyLocalStateFromCache(changedKeys)
+    })
+    return
+  }
+
   if (areaName !== 'sync') return
 
   const changedKeys = Object.keys(changes)
@@ -1099,6 +1300,7 @@ const toggleNoteSync = async (id: string) => {
 
 // 初期化
 onMounted(async () => {
+  await hydrateLegacyCache()
   const storageKeys = [STORAGE_SYNCED_NOTES_KEY, STORAGE_NOTES_KEY, STORAGE_THEME_COLOR_KEY]
   const storedValues = await getStorageValues(storageKeys)
 
