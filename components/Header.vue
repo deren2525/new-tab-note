@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-[35px] border-b border-border_primary items-center px-[8px]">
-    <div class="relative ml-auto">
+    <div class="relative ml-auto flex items-center">
       <button @click="isOpen = !isOpen" class="relative bg-bg_primary text-icon_primary">
         <svg
           width="24"
