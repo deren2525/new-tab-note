@@ -32,6 +32,12 @@
   "SYNC_QUOTA_EXCEEDED": {
     "message": "Sync storage is full. Turn off sync or delete notes you do not need to free up space."
   },
+  "SYNC_USAGE_LABEL": {
+    "message": "Sync storage usage"
+  },
+  "NOTE_USAGE_LABEL": {
+    "message": "Note size"
+  },
   "RESUME_EDIT_ALERT": {
     "message": "To resume editing, please clear the filter."
   },

@@ -32,6 +32,12 @@
   "SYNC_QUOTA_EXCEEDED": {
     "message": "同期容量が上限に達しました。同期不要なノートの同期をオフにするか、削除して空き容量を確保してください。"
   },
+  "SYNC_USAGE_LABEL": {
+    "message": "同期使用容量"
+  },
+  "NOTE_USAGE_LABEL": {
+    "message": "ノート容量"
+  },
   "RESUME_EDIT_ALERT": {
     "message": "編集を再開するにはフィルターを解除してください。"
   },
