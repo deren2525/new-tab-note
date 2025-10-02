@@ -1,9 +1,11 @@
 <template>
   <div class="min-h-screen w-full box-border text-text_black font-sans">
     <Header
-      @change-theme="changeTheme"
       :current-theme-color="theme"
       :theme-options="themeOptions"
+      :is-filter="isFilter"
+      @change-theme="changeTheme"
+      @filter="(v) => (isFilter = v)"
     />
     <div class="w-full h-[calc(100svh-35px)] flex">
       <SideMenu
@@ -20,29 +22,40 @@
       />
       <div class="bg-bg_secondary w-full flex">
         <EmptyState v-if="!notes.length" @create="createNote" />
-        <template v-else>
-          <Edit
-            v-model="text"
-            :is-filter="isFilter"
-            :is-preview-mode="isPreviewMode"
-            :note-id="currentId"
-            :is-synced="currentNote?.isSynced ?? false"
-            :sync-status="currentSyncStatus"
-            :can-sync="hasSyncStorage"
-            :note-usage-text="currentNoteUsageText"
-            :note-usage-label="MESSAGE_NOTE_USAGE_LABEL"
-            @filter="(v) => (isFilter = v)"
-            @openPreview="isPreviewMode = true"
-            @toggleSync="toggleNoteSync"
-          />
-          <Preview
-            v-if="isPreviewMode"
-            :data="text"
-            :is-filter="isFilter"
-            :is-side-menu-open="isOpenSideMenu"
-            @removePreview="isPreviewMode = false"
-          />
-        </template>
+        <div v-else class="flex flex-col w-full">
+          <div class="flex flex-1 min-h-0">
+            <Edit
+              v-if="isEditVisible"
+              v-model="text"
+              :is-filter="isFilter"
+              :is-preview-mode="isPreviewMode"
+              :note-id="currentId"
+              :is-synced="currentNote?.isSynced ?? false"
+              :sync-status="currentSyncStatus"
+              :can-sync="hasSyncStorage"
+              :note-usage-text="currentNoteUsageText"
+              :note-usage-label="MESSAGE_NOTE_USAGE_LABEL"
+              @openPreview="isPreviewMode = true"
+              @toggleSync="toggleNoteSync"
+              @close="isEditVisible = false"
+            />
+            <Preview
+              v-if="isPreviewMode"
+              :data="text"
+              :is-filter="isFilter"
+              :is-side-menu-open="isOpenSideMenu"
+              :can-sync="hasSyncStorage"
+              :sync-status="currentSyncStatus"
+              :is-synced="currentNote?.isSynced ?? false"
+              :note-id="currentId"
+              :is-preview-mode="isPreviewMode"
+              :is-edit-visible="isEditVisible"
+              @toggleSync="toggleNoteSync"
+              @openEdit="isEditVisible = true"
+              @close="isPreviewMode = false"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -99,6 +112,8 @@ const currentId = ref<string>('')
 const isFilter = ref<boolean>(false)
 // プレビュー画面を開いているか
 const isPreviewMode = ref<boolean>(false)
+// 編集タブを表示しているか
+const isEditVisible = ref<boolean>(true)
 // 現在編集中の本文
 const text = ref<string>('')
 // サイドメニュー開閉状態
@@ -175,6 +190,7 @@ const STORAGE_SYNCED_NOTES_KEY = 'new_tab_note:synced_notes'
 const STORAGE_TARGET_NOTE_ID_KEY = 'new_tab_note:target_note_id'
 const STORAGE_FILTER_KEY = 'new_tab_note:filter'
 const STORAGE_PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
+const STORAGE_EDIT_VISIBLE_KEY = 'new_tab_note:edit_visible'
 const STORAGE_THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const STORAGE_SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
 const SYNC_MAX_BYTES_PER_ITEM = 8 * 1024
@@ -201,6 +217,7 @@ const LOCAL_PERSISTED_KEYS = [
   STORAGE_TARGET_NOTE_ID_KEY,
   STORAGE_FILTER_KEY,
   STORAGE_PREVIEW_MODE_KEY,
+  STORAGE_EDIT_VISIBLE_KEY,
   STORAGE_THEME_COLOR_KEY,
   STORAGE_SIDE_MENU_OPEN_KEY,
   STORAGE_SYNCED_NOTES_KEY,
@@ -347,6 +364,13 @@ const applyLocalStateFromCache = (keys: string[]) => {
     const previewValue = readLegacyValue(STORAGE_PREVIEW_MODE_KEY)
     if (typeof previewValue === 'boolean') {
       isPreviewMode.value = previewValue
+    }
+  }
+
+  if (keys.includes(STORAGE_EDIT_VISIBLE_KEY)) {
+    const editVisible = readLegacyValue(STORAGE_EDIT_VISIBLE_KEY)
+    if (typeof editVisible === 'boolean') {
+      isEditVisible.value = editVisible
     }
   }
 
@@ -1167,6 +1191,8 @@ const toLocalNote = (payload: StoredNotePayload): Note => {
  * 新しいノートを追加
  */
 const createNote = async () => {
+  isEditVisible.value = true
+  isPreviewMode.value = true
   const id = uuidv4()
   const newNote = {
     id,
@@ -1363,6 +1389,14 @@ onMounted(async () => {
   }
 
   /**
+   * Editビュー表示状態の初期値をlocalStorageから取得
+   */
+  const legacyEditVisible = readLegacyValue(STORAGE_EDIT_VISIBLE_KEY)
+  if (typeof legacyEditVisible === 'boolean') {
+    isEditVisible.value = legacyEditVisible
+  }
+
+  /**
    * フィルター設定の初期値をlocalStorageから取得
    */
   const legacyFilter = readLegacyValue(STORAGE_FILTER_KEY)
@@ -1494,6 +1528,13 @@ watch(isPreviewMode, (val) => {
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は書き込み不要
   // 端末ごとに保持するためlocalStorageに保存
   setLegacyValue(STORAGE_PREVIEW_MODE_KEY, val)
+})
+
+// Edit表示更新時
+watch(isEditVisible, (val) => {
+  if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は書き込み不要
+  // 端末ごとに保持するためlocalStorageに保存
+  setLegacyValue(STORAGE_EDIT_VISIBLE_KEY, val)
 })
 
 // フィルター設定更新時
