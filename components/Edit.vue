@@ -1,348 +1,229 @@
 <template>
   <div class="flex w-full h-full flex-col">
     <div class="h-[35px] w-full bg-bg_primary flex justify-between">
-      <span class="bg-bg_secondary px-[16px] inline-flex items-center h-full text-text_primary"
-        >Edit</span
+      <span
+        class="bg-bg_secondary px-[16px] inline-flex items-center h-full text-text_primary gap-[8px]"
       >
+        Edit
+        <button
+          v-if="props.isPreviewMode"
+          type="button"
+          class="text-icon_primary"
+          :aria-label="MESSAGE_HIDE_EDIT"
+          @click="handleClose"
+        >
+          <svg
+            width="17"
+            height="17"
+            viewBox="0 0 17 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5.00562 11.995L8.5007 8.49998M8.5007 8.49998L11.9958 5.00488M8.5007 8.49998L5.00562 5.00488M8.5007 8.49998L11.9958 11.995"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </button>
+      </span>
       <div class="flex">
-        <div v-if="props.canSync" class="relative flex items-center gap-[4px]">
-          <div class="flex items-center gap-[4px]">
-            <div class="flex items-center pointer-events-none">
-              <!-- 同期中アイコン -->
-              <svg
-                v-if="props.syncStatus === 'syncing'"
-                class="h-4 w-4 animate-spin text-icon_primary"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
+        <template v-if="!props.isPreviewMode">
+          <div v-if="props.canSync" class="relative flex items-center gap-[4px] px-[8px]">
+            <div class="flex items-center gap-[4px] px-[8px]">
+              <div class="flex items-center pointer-events-none">
+                <!-- 同期中アイコン -->
+                <svg
+                  v-if="props.syncStatus === 'syncing'"
+                  class="h-4 w-4 animate-spin text-icon_primary"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  />
+                  <path
+                    class="opacity-75"
+                    d="M14 8A6 6 0 0 0 8 2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                <!-- 同期完了アイコン -->
+                <svg
+                  v-else-if="props.syncStatus === 'synced'"
+                  class="h-4 w-4 text-green-500"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 8L6.2 11 13 4"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <!-- 同期エラーアイコン -->
+                <svg
+                  v-else-if="props.syncStatus === 'error'"
+                  class="h-4 w-4 text-red-500"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M8 5V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path
+                    d="M8 11.5H8.01"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M8 2.5L14 13.5H2L8 2.5Z"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <!-- 同期オフアイコン -->
+                <svg
+                  v-else
+                  class="h-4 w-4 text-text_secondary"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5.5 12H11a2.5 2.5 0 0 0 .312-4.978A3.5 3.5 0 0 0 4.954 6.7a2.75 2.75 0 0 0 .384 5.3H5.5Z"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M3 3l10 10"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <!-- 同期オンオフボタン -->
+              <div
+                class="relative flex items-center gap-[6px] text-small text-text_primary cursor-help"
+                @mouseenter="showSyncInfo = true"
+                @mouseleave="showSyncInfo = false"
+                @focusin="showSyncInfo = true"
+                @focusout="showSyncInfo = false"
               >
-                <circle
-                  class="opacity-25"
-                  cx="8"
-                  cy="8"
-                  r="6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                />
-                <path
-                  class="opacity-75"
-                  d="M14 8A6 6 0 0 0 8 2"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <!-- 同期完了アイコン -->
-              <svg
-                v-else-if="props.syncStatus === 'synced'"
-                class="h-4 w-4 text-green-500"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3 8L6.2 11 13 4"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <!-- 同期エラーアイコン -->
-              <svg
-                v-else-if="props.syncStatus === 'error'"
-                class="h-4 w-4 text-red-500"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M8 5V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                <path
-                  d="M8 11.5H8.01"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-                <path
-                  d="M8 2.5L14 13.5H2L8 2.5Z"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <!-- 同期オフアイコン -->
-              <svg
-                v-else
-                class="h-4 w-4 text-text_secondary"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M5.5 12H11a2.5 2.5 0 0 0 .312-4.978A3.5 3.5 0 0 0 4.954 6.7a2.75 2.75 0 0 0 .384 5.3H5.5Z"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-                <path
-                  d="M3 3l10 10"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
+                <span class="text-small">{{ LABEL_SYNC }}</span>
+                <button
+                  class="relative inline-flex h-[20px] w-[40px] items-center rounded-full border border-border_primary transition-colors duration-200 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-bg_button_primary"
+                  :class="[
+                    props.isSynced
+                      ? 'bg-bg_button_primary border-bg_button_primary'
+                      : 'bg-bg_secondary',
+                  ]"
+                  role="switch"
+                  :aria-checked="props.isSynced"
+                  :aria-label="props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF"
+                  :disabled="!props.noteId"
+                  @click="$emit('toggleSync', props.noteId)"
+                >
+                  <span class="sr-only">
+                    {{ props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF }}
+                  </span>
+                  <span
+                    class="absolute left-[2px] h-[16px] w-[16px] rounded-full bg-white shadow transition-transform duration-200"
+                    :class="[props.isSynced ? 'translate-x-[20px]' : 'translate-x-0']"
+                  ></span>
+                </button>
+                <div
+                  v-if="showSyncInfo"
+                  class="absolute z-30 top-full right-0 mt-2 w-[260px] max-w-[calc(100vw-24px)] rounded bg-bg_primary text-text_primary text-small shadow-lg p-[10px]"
+                >
+                  <p class="whitespace-pre-line text-small">{{ MESSAGE_SYNC_INFO }}</p>
+                </div>
+              </div>
             </div>
-            <!-- 同期オンオフボタン -->
-            <div
-              class="relative flex items-center gap-[6px] text-small text-text_primary cursor-help"
-              @mouseenter="showSyncInfo = true"
-              @mouseleave="showSyncInfo = false"
-              @focusin="showSyncInfo = true"
-              @focusout="showSyncInfo = false"
-            >
-              <span class="text-small">{{ LABEL_SYNC }}</span>
+            <div class="relative flex">
               <button
-                class="relative inline-flex h-[20px] w-[40px] items-center rounded-full border border-border_primary transition-colors duration-200 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-bg_button_primary"
-                :class="[
-                  props.isSynced
-                    ? 'bg-bg_button_primary border-bg_button_primary'
-                    : 'bg-bg_secondary',
-                ]"
-                role="switch"
-                :aria-checked="props.isSynced"
-                :aria-label="props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF"
-                :disabled="!props.noteId"
-                @click="$emit('toggleSync', props.noteId)"
+                type="button"
+                class="flex p-[8px] text-icon_primary"
+                :aria-label="MESSAGE_SHOW_PREVIEW"
+                @mouseenter="showPreviewTooltip = true"
+                @mouseleave="showPreviewTooltip = false"
+                @focusin="showPreviewTooltip = true"
+                @focusout="showPreviewTooltip = false"
+                @click="handleOpenPreview"
               >
-                <span class="sr-only">
-                  {{ props.isSynced ? MESSAGE_SYNC_BUTTON_ON : MESSAGE_SYNC_BUTTON_OFF }}
-                </span>
-                <span
-                  class="absolute left-[2px] h-[16px] w-[16px] rounded-full bg-white shadow transition-transform duration-200"
-                  :class="[props.isSynced ? 'translate-x-[20px]' : 'translate-x-0']"
-                ></span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.55556 15C2.12778 15 1.7617 14.8478 1.45733 14.5434C1.15296 14.2391 1.00052 13.8727 1 13.4444V2.55556C1 2.12778 1.15244 1.7617 1.45733 1.45733C1.76222 1.15296 2.1283 1.00052 2.55556 1H13.4444C13.8722 1 14.2386 1.15244 14.5434 1.45733C14.8483 1.76222 15.0005 2.1283 15 2.55556V13.4444C15 13.8722 14.8478 14.2386 14.5434 14.5434C14.2391 14.8483 13.8727 15.0005 13.4444 15H2.55556ZM2.55556 13.4444H13.4444V4.11111H2.55556V13.4444ZM8 11.8889C6.93704 11.8889 5.98763 11.6006 5.15178 11.024C4.31593 10.4474 3.70978 9.69867 3.33333 8.77778C3.70926 7.85741 4.31541 7.10893 5.15178 6.53233C5.98815 5.95574 6.93755 5.66718 8 5.66667C9.06244 5.66615 10.0121 5.9547 10.849 6.53233C11.6859 7.10996 12.2918 7.85844 12.6667 8.77778C12.2907 9.69815 11.6849 10.4469 10.849 11.024C10.0131 11.6011 9.06348 11.8894 8 11.8889ZM8 10.7222C8.72592 10.7222 9.38704 10.5503 9.98333 10.2066C10.5796 9.86278 11.0463 9.38652 11.3833 8.77778C11.0463 8.16852 10.5796 7.692 9.98333 7.34822C9.38704 7.00444 8.72592 6.83281 8 6.83333C7.27407 6.83385 6.61296 7.00574 6.01667 7.349C5.42037 7.69226 4.9537 8.16852 4.61667 8.77778C4.9537 9.38704 5.42037 9.86355 6.01667 10.2073C6.61296 10.5511 7.27407 10.7227 8 10.7222ZM8 9.94444C8.32407 9.94444 8.59967 9.83115 8.82678 9.60455C9.05389 9.37796 9.16718 9.10237 9.16667 8.77778C9.16615 8.45318 9.05285 8.17785 8.82678 7.95178C8.6007 7.7257 8.32511 7.61215 8 7.61111C7.67489 7.61007 7.39955 7.72363 7.174 7.95178C6.94844 8.17992 6.83489 8.45526 6.83333 8.77778C6.83178 9.1003 6.94533 9.37589 7.174 9.60455C7.40267 9.83322 7.678 9.94652 8 9.94444Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </button>
               <div
-                v-if="showSyncInfo"
-                class="absolute z-30 top-full right-0 mt-2 w-[260px] max-w-[calc(100vw-24px)] rounded bg-bg_primary text-text_primary text-small shadow-lg p-[10px]"
+                v-if="showPreviewTooltip"
+                class="pointer-events-none absolute top-full right-0 mt-[6px] rounded bg-bg_primary px-[12px] py-[6px] text-small text-text_primary shadow-lg whitespace-nowrap"
               >
-                <p class="whitespace-pre-line text-small">{{ MESSAGE_SYNC_INFO }}</p>
+                {{ LABEL_PREVIEW_BUTTON }}
               </div>
             </div>
           </div>
-
-          <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
-            <svg
-              v-if="isFilter"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13 10.6667L11.3499 8.40253"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M8 11.6666V9.33331"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M3 10.6667L4.64597 8.40826"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <svg
-              v-else
-              width="16"
-              height="17"
-              viewBox="0 0 16 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
-                fill="currentColor"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          <button
-            v-if="!props.isPreviewMode"
-            class="flex p-[8px] text-icon_primary"
-            @click="handleOpenPreview"
-          >
-            <svg
-              width="16"
-              height="17"
-              viewBox="0 0 16 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-              <path
-                d="M8 2.5L8 14.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          <div
-            v-if="showTooltip"
-            class="absolute z-20 top-full mt-[10px] w-[230px]"
-            :class="[props.isPreviewMode ? 'left-1/2 -translate-x-1/2' : 'right-[16px] ']"
-          >
-            <div
-              class="relative bg-bg_primary text-text_primary text-body rounded px-[12px] py-[8px]"
-            >
-              <p>
-                {{ MESSAGE_RESUME_EDIT }}
-              </p>
+          <div v-else class="flex items-center">
+            <div class="relative flex">
+              <button
+                class="flex p-[8px] text-icon_primary"
+                type="button"
+                :aria-label="MESSAGE_SHOW_PREVIEW"
+                @mouseenter="showPreviewTooltip = true"
+                @mouseleave="showPreviewTooltip = false"
+                @focusin="showPreviewTooltip = true"
+                @focusout="showPreviewTooltip = false"
+                @click="handleOpenPreview"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M2.55556 15C2.12778 15 1.7617 14.8478 1.45733 14.5434C1.15296 14.2391 1.00052 13.8727 1 13.4444V2.55556C1 2.12778 1.15244 1.7617 1.45733 1.45733C1.76222 1.15296 2.1283 1.00052 2.55556 1H13.4444C13.8722 1 14.2386 1.15244 14.5434 1.45733C14.8483 1.76222 15.0005 2.1283 15 2.55556V13.4444C15 13.8722 14.8478 14.2386 14.5434 14.5434C14.2391 14.8483 13.8727 15.0005 13.4444 15H2.55556ZM2.55556 13.4444H13.4444V4.11111H2.55556V13.4444ZM8 11.8889C6.93704 11.8889 5.98763 11.6006 5.15178 11.024C4.31593 10.4474 3.70978 9.69867 3.33333 8.77778C3.70926 7.85741 4.31541 7.10893 5.15178 6.53233C5.98815 5.95574 6.93755 5.66718 8 5.66667C9.06244 5.66615 10.0121 5.9547 10.849 6.53233C11.6859 7.10996 12.2918 7.85844 12.6667 8.77778C12.2907 9.69815 11.6849 10.4469 10.849 11.024C10.0131 11.6011 9.06348 11.8894 8 11.8889ZM8 10.7222C8.72592 10.7222 9.38704 10.5503 9.98333 10.2066C10.5796 9.86278 11.0463 9.38652 11.3833 8.77778C11.0463 8.16852 10.5796 7.692 9.98333 7.34822C9.38704 7.00444 8.72592 6.83281 8 6.83333C7.27407 6.83385 6.61296 7.00574 6.01667 7.349C5.42037 7.69226 4.9537 8.16852 4.61667 8.77778C4.9537 9.38704 5.42037 9.86355 6.01667 10.2073C6.61296 10.5511 7.27407 10.7227 8 10.7222ZM8 9.94444C8.32407 9.94444 8.59967 9.83115 8.82678 9.60455C9.05389 9.37796 9.16718 9.10237 9.16667 8.77778C9.16615 8.45318 9.05285 8.17785 8.82678 7.95178C8.6007 7.7257 8.32511 7.61215 8 7.61111C7.67489 7.61007 7.39955 7.72363 7.174 7.95178C6.94844 8.17992 6.83489 8.45526 6.83333 8.77778C6.83178 9.1003 6.94533 9.37589 7.174 9.60455C7.40267 9.83322 7.678 9.94652 8 9.94444Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <div
+                v-if="showPreviewTooltip"
+                class="pointer-events-none absolute top-full right-0 mt-[6px] rounded bg-bg_primary px-[12px] py-[6px] text-small text-text_primary shadow-lg whitespace-nowrap"
+              >
+                {{ LABEL_PREVIEW_BUTTON }}
+              </div>
             </div>
           </div>
-        </div>
-        <div v-else class="flex items-center">
-          <button class="flex p-[8px] text-icon_primary" @click="handleFilter(props.isFilter)">
-            <svg
-              v-if="isFilter"
-              width="16"
-              height="16"
-              viewBox="0 0 16 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M13 10.6667L11.3499 8.40253"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M8 11.6666V9.33331"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M3 10.6667L4.64597 8.40826"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M2 5.33331C4.4 10.6666 11.6 10.6666 14 5.33331"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <svg
-              v-else
-              width="16"
-              height="17"
-              viewBox="0 0 16 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2 9.16669C4.4 3.83335 11.6 3.83335 14 9.16669"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M8 11.8333C6.8954 11.8333 6 10.9379 6 9.83331C6 8.72871 6.8954 7.83331 8 7.83331C9.1046 7.83331 10 8.72871 10 9.83331C10 10.9379 9.1046 11.8333 8 11.8333Z"
-                fill="currentColor"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-          <button
-            v-if="!props.isPreviewMode"
-            class="flex p-[8px] text-icon_primary"
-            @click="handleOpenPreview"
-          >
-            <svg
-              width="16"
-              height="17"
-              viewBox="0 0 16 17"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.66659 14.5H2.66659C1.93021 14.5 1.33325 13.9031 1.33325 13.1667V3.83333C1.33325 3.09695 1.93021 2.5 2.66659 2.5H13.3333C14.0697 2.5 14.6666 3.09695 14.6666 3.83333V9.83333"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-              <path
-                d="M8 2.5L8 14.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M13.4161 13.9123C13.7769 13.5505 14 13.0513 14 12.5C14 11.3954 13.1046 10.5 12 10.5C10.8954 10.5 10 11.3954 10 12.5C10 13.6046 10.8954 14.5 12 14.5C12.5533 14.5 13.054 14.2753 13.4161 13.9123ZM13.4161 13.9123L14.6667 15.1667"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+        </template>
       </div>
     </div>
     <div class="flex-1 min-h-0 flex flex-col relative">
@@ -361,10 +242,17 @@
       </div>
       <div
         v-if="props.isFilter"
-        class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto"
+        class="absolute inset-0 z-10 bg-primary/20 pointer-events-auto flex items-center justify-center px-4"
         style="backdrop-filter: blur(5px)"
         @click="handleFilterTouch"
-      ></div>
+      >
+        <div
+          v-if="showTooltip"
+          class="pointer-events-none max-w-[260px] w-full rounded bg-bg_primary text-text_primary text-small shadow-lg p-[10px] text-center"
+        >
+          <p class="whitespace-pre-line">{{ MESSAGE_RESUME_EDIT }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -378,6 +266,9 @@ const LABEL_SYNC = chrome.i18n.getMessage('SYNC_LABEL') || 'Sync'
 const MESSAGE_SYNC_INFO =
   chrome.i18n.getMessage('SYNC_INFO') ||
   'When sync is on, this note is available on all devices using the same Chrome account. When sync is off, it is saved only on this device.'
+const MESSAGE_HIDE_EDIT = chrome.i18n.getMessage('HIDE_EDIT_PANEL') || 'Hide Edit'
+const MESSAGE_SHOW_PREVIEW = chrome.i18n.getMessage('SHOW_PREVIEW_PANEL') || 'Show Preview'
+const LABEL_PREVIEW_BUTTON = 'Preview'
 
 type Props = {
   isFilter: boolean
@@ -393,17 +284,21 @@ type Props = {
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
-  (e: 'filter', isFilter: boolean): void
   (e: 'openPreview'): void
   (e: 'update:modelValue', value: string): void
   (e: 'toggleSync', noteId: string): void
+  (e: 'close'): void
 }>()
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const isComposing = ref(false)
 const showSyncInfo = ref(false)
+const showPreviewTooltip = ref(false)
 const MESSAGE_RESUME_EDIT =
   chrome.i18n.getMessage('RESUME_EDIT_ALERT') || 'To resume editing, please clear the filter.'
+const handleClose = () => {
+  emit('close')
+}
 
 onMounted(() => {
   nextTick(adjustHeight)
@@ -422,14 +317,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', setMinimumHeight)
 })
-
-/**
- * フィルターモードのON/OFFのトグル
- * @param {boolean} isFilter 現在のフィルター状態
- */
-const handleFilter = (isFilter: boolean) => {
-  emit('filter', !isFilter)
-}
 
 /**
  * プレビュー表示押下
