@@ -1,6 +1,6 @@
 <template>
   <div class="flex w-full h-[35px] border-b border-border_primary items-center px-[8px]">
-    <div class="relative ml-auto flex items-center">
+    <div class="relative ml-auto flex items-center gap-[4px]">
       <button
         class="flex p-[8px] text-icon_primary"
         type="button"
@@ -69,7 +69,12 @@
         </svg>
       </button>
 
-      <button @click="isOpen = !isOpen" class="flex p-[8px] bg-bg_primary text-icon_primary">
+      <button
+        type="button"
+        class="flex p-[8px] bg-bg_primary text-icon_primary"
+        :aria-label="THEME_BUTTON_LABEL"
+        @click="toggleThemeMenu"
+      >
         <svg
           width="16"
           height="16"
@@ -108,25 +113,98 @@
         </svg>
       </button>
 
-      <div
-        v-if="isOpen"
-        class="absolute right-0 top-[25px] w-32 bg-bg_primary border border-border_primary rounded shadow z-50"
+      <button
+        type="button"
+        class="flex p-[8px] bg-bg_primary text-icon_primary"
+        :aria-label="FONT_BUTTON_LABEL"
+        @click="toggleFontMenu"
       >
-        <ul class="py-1">
-          <li
-            v-for="option in props.themeOptions"
-            :key="option.name"
-            @click.stop="handleChangeTheme(option.name)"
-            class="flex items-center gap-[8px] px-[16px] py-[8px] cursor-pointer"
-          >
-            <span
-              class="inline-block w-[12px] h-[12px] rounded-full cursor-pointer"
-              :style="{
-                backgroundColor: option.color,
-                border: `1px solid ${option.border || '#ccc'}`,
-              }"
-            ></span>
-            {{ option.name }}
+        <span class="text-[12px] leading-none font-semibold">Aa</span>
+      </button>
+
+      <div
+        v-if="isThemeOpen"
+        class="absolute right-0 top-[25px] w-48 bg-bg_primary border border-border_primary rounded shadow z-50 py-[8px]"
+      >
+        <div class="px-[16px] pb-[4px] text-[11px] uppercase tracking-wide text-text_secondary">
+          {{ MENU_THEME_LABEL }}
+        </div>
+        <ul class="flex flex-col gap-[2px]">
+          <li v-for="option in props.themeOptions" :key="option.name">
+            <button
+              type="button"
+              class="flex w-full items-center gap-[8px] px-[16px] py-[8px] text-left text-text_primary"
+              :class="[
+                activeThemeName === option.name.toLowerCase()
+                  ? 'bg-bg_secondary'
+                  : 'hover:bg-bg_secondary/60',
+              ]"
+              @click.stop="handleChangeTheme(option.name)"
+            >
+              <span
+                class="inline-block w-[12px] h-[12px] rounded-full border"
+                :style="{
+                  backgroundColor: option.color,
+                  border: `1px solid ${option.border || '#ccc'}`,
+                }"
+              ></span>
+              <span class="flex-1">{{ option.name }}</span>
+              <svg
+                v-if="activeThemeName === option.name.toLowerCase()"
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 8L6.2 11 13 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div
+        v-if="isFontOpen"
+        class="absolute right-0 top-[25px] w-48 bg-bg_primary border border-border_primary rounded shadow z-50 py-[8px]"
+      >
+        <div class="px-[16px] pb-[4px] text-[11px] uppercase tracking-wide text-text_secondary">
+          {{ MENU_FONT_LABEL }}
+        </div>
+        <ul class="flex flex-col gap-[2px] max-h-[240px] overflow-auto">
+          <li v-for="option in props.fontOptions" :key="option.id">
+            <button
+              type="button"
+              class="flex w-full items-center gap-[8px] px-[16px] py-[8px] text-left text-text_primary"
+              :class="[
+                props.currentFont === option.id ? 'bg-bg_secondary' : 'hover:bg-bg_secondary/60',
+              ]"
+              @click.stop="handleChangeFont(option.id)"
+            >
+              <span class="flex-1 text-small">{{ option.label }}</span>
+              <svg
+                v-if="props.currentFont === option.id"
+                width="14"
+                height="14"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 8L6.2 11 13 4"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
           </li>
         </ul>
       </div>
@@ -135,25 +213,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+type ThemeOption = { name: string; color: string; border: string }
+type FontOption = { id: string; label: string }
 
 type Props = {
   currentThemeColor: string
-  themeOptions: { name: string; color: string; border: string }[]
+  themeOptions: readonly ThemeOption[]
+  currentFont: string
+  fontOptions: readonly FontOption[]
   isFilter: boolean
 }
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'changeTheme', colorName: string): void
+  (e: 'changeFont', fontId: string): void
   (e: 'filter', value: boolean): void
 }>()
 
-const isOpen = ref(false)
+const isThemeOpen = ref(false)
+const isFontOpen = ref(false)
+const activeThemeName = computed(() => props.currentThemeColor.toLowerCase())
+const MENU_THEME_LABEL = chrome.i18n.getMessage('HEADER_THEME_LABEL') || 'Theme'
+const MENU_FONT_LABEL = chrome.i18n.getMessage('HEADER_FONT_LABEL') || 'Font'
+const THEME_BUTTON_LABEL = chrome.i18n.getMessage('HEADER_THEME_BUTTON') || 'Change theme'
+const FONT_BUTTON_LABEL = chrome.i18n.getMessage('HEADER_FONT_BUTTON') || 'Change font'
 
 const handleChangeTheme = (name: string) => {
   emit('changeTheme', name.toLowerCase())
-  isOpen.value = false
+  isThemeOpen.value = false
+}
+
+const handleChangeFont = (fontId: string) => {
+  emit('changeFont', fontId)
+  isFontOpen.value = false
+}
+
+const toggleThemeMenu = () => {
+  isThemeOpen.value = !isThemeOpen.value
+  if (isThemeOpen.value) {
+    isFontOpen.value = false
+  }
+}
+
+const toggleFontMenu = () => {
+  isFontOpen.value = !isFontOpen.value
+  if (isFontOpen.value) {
+    isThemeOpen.value = false
+  }
 }
 
 /**

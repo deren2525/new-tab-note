@@ -8,6 +8,48 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/jetbrains-mono':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-naskh-arabic':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-arabic':
+        specifier: ^5.2.10
+        version: 5.2.10
+      '@fontsource/noto-sans-devanagari':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-hebrew':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-jp':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-kr':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-sc':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-sans-tc':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/noto-serif':
+        specifier: ^5.2.9
+        version: 5.2.9
+      '@fontsource/noto-serif-jp':
+        specifier: ^5.2.7
+        version: 5.2.7
+      '@fontsource/noto-serif-kr':
+        specifier: ^5.2.8
+        version: 5.2.8
       marked:
         specifier: ^15.0.12
         version: 15.0.12
@@ -262,6 +304,48 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@fontsource/inter@5.2.8':
+    resolution: {integrity: sha512-P6r5WnJoKiNVV+zvW2xM13gNdFhAEpQ9dQJHt3naLvfg+LkF2ldgSLiF4T41lf1SQCM9QmkqPTn4TH568IRagg==}
+
+  '@fontsource/jetbrains-mono@5.2.8':
+    resolution: {integrity: sha512-6w8/SG4kqvIMu7xd7wt6x3idn1Qux3p9N62s6G3rfldOUYHpWcc2FKrqf+Vo44jRvqWj2oAtTHrZXEP23oSKwQ==}
+
+  '@fontsource/noto-naskh-arabic@5.2.8':
+    resolution: {integrity: sha512-7XslFoej8ldVhKUn8I0MmvUmvQls15b04eHYCCnecO2uAE4kSv+iriBSheQTYQBgAaCgzC8WdxcjTsIjDQWS7w==}
+
+  '@fontsource/noto-sans-arabic@5.2.10':
+    resolution: {integrity: sha512-Hgj3NwQJ0NquIADW3hFboFjsts4UvEOJQ8tOX0bhQZgpNKHsMawjv/1SZnq0QvRbP6efHTZM/A1k7tdy9S6sbA==}
+
+  '@fontsource/noto-sans-devanagari@5.2.8':
+    resolution: {integrity: sha512-UyCfyCEX2+QVUDQWb9y2MRTg1O3bTcXixzD2xQfapFOtw4hpH1rfDIbTXulZ4SUEsbB/wWeyyEL9b93Nmwd6Gg==}
+
+  '@fontsource/noto-sans-hebrew@5.2.8':
+    resolution: {integrity: sha512-FN/GDpE709JQN5f7vmqlbIwz2/vAM6ZnXqRsw47Piq731hvti55V/FLbyU2RWUvlis16ezPf0r+zKTjfdeXF/g==}
+
+  '@fontsource/noto-sans-jp@5.2.8':
+    resolution: {integrity: sha512-ngWXPtSV3XH8ZmNX9hnfeQ+x/3mCoaAOA3BVDcyS5jQdh4FYqKjf/S9tEUEYDPwGa2pULJVXTO2+oFg42gWvSw==}
+
+  '@fontsource/noto-sans-kr@5.2.8':
+    resolution: {integrity: sha512-2Nbu2Iy1YGUkHbOTF8mMchipbg8g4ZBTpUzHwg09/dz/9b7r5o5h2PF6hnbismsBp8GzpsBA66OlQJw3GZehuw==}
+
+  '@fontsource/noto-sans-sc@5.2.8':
+    resolution: {integrity: sha512-8T8HxIS3uAMCfaQawKRH/6yYZ1oRnJZB/CrGwfxGgJa+zAOBgx2lqZMiTY/WbQpLGlPRqX4zHXJYI09CI2q6tA==}
+
+  '@fontsource/noto-sans-tc@5.2.8':
+    resolution: {integrity: sha512-YGeoh/XCBJm9iSUuyDIpw0pd7I+XiO7HI3Tq+38j4fuIjykURHhUDRtjkIFkEzjg8BKZ6MNdyyXHXor1fdoGQg==}
+
+  '@fontsource/noto-sans@5.2.10':
+    resolution: {integrity: sha512-J58RVfS/C0Z2VBF+PoU260Tx8cdRGYuS+e3yQe4hYaIYDl0sEVn5CzlLo5zVRvQD0HaIUTV8AZMfqR7rtdEpqQ==}
+
+  '@fontsource/noto-serif-jp@5.2.7':
+    resolution: {integrity: sha512-uC8j75EoZe/s1LR+qzKCi7pXxQgY3Jbb0vpX9UOuzTOewMyPZd6zgQD64uxPo52qPPWkA+U1t4d/27KwKJoOCw==}
+
+  '@fontsource/noto-serif-kr@5.2.8':
+    resolution: {integrity: sha512-AA5HzQ054ZOJpXNarjrhw7KCpoVya7UEDHHCTKSSJooro2IJjh5KYj4JHnai/03paOyTpRQJdF94M+ohGGu2nQ==}
+
+  '@fontsource/noto-serif@5.2.9':
+    resolution: {integrity: sha512-A2b7XBo0dSxxTZg95Ap/HLinXq1pEM8PzSvbBFtPMZM5/1BLKEU1dR+PBnLixvOdcC7mup+/NjmyLryQ1E9WeA==}
 
   '@isaacs/balanced-match@4.0.1':
     resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
@@ -2620,6 +2704,34 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.5':
     optional: true
+
+  '@fontsource/inter@5.2.8': {}
+
+  '@fontsource/jetbrains-mono@5.2.8': {}
+
+  '@fontsource/noto-naskh-arabic@5.2.8': {}
+
+  '@fontsource/noto-sans-arabic@5.2.10': {}
+
+  '@fontsource/noto-sans-devanagari@5.2.8': {}
+
+  '@fontsource/noto-sans-hebrew@5.2.8': {}
+
+  '@fontsource/noto-sans-jp@5.2.8': {}
+
+  '@fontsource/noto-sans-kr@5.2.8': {}
+
+  '@fontsource/noto-sans-sc@5.2.8': {}
+
+  '@fontsource/noto-sans-tc@5.2.8': {}
+
+  '@fontsource/noto-sans@5.2.10': {}
+
+  '@fontsource/noto-serif-jp@5.2.7': {}
+
+  '@fontsource/noto-serif-kr@5.2.8': {}
+
+  '@fontsource/noto-serif@5.2.9': {}
 
   '@isaacs/balanced-match@4.0.1': {}
 
