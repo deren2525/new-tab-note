@@ -174,9 +174,6 @@
         v-if="isFontOpen"
         class="absolute right-0 top-[25px] w-48 bg-bg_primary border border-border_primary rounded shadow z-50 py-[8px]"
       >
-        <div class="px-[16px] pb-[4px] text-[11px] uppercase tracking-wide text-text_secondary">
-          {{ MENU_FONT_LABEL }}
-        </div>
         <ul class="flex flex-col gap-[2px] max-h-[240px] overflow-auto">
           <li v-for="option in props.fontOptions" :key="option.id">
             <button
@@ -237,7 +234,6 @@ const isThemeOpen = ref(false)
 const isFontOpen = ref(false)
 const activeThemeName = computed(() => props.currentThemeColor.toLowerCase())
 const MENU_THEME_LABEL = chrome.i18n.getMessage('HEADER_THEME_LABEL') || 'Theme'
-const MENU_FONT_LABEL = chrome.i18n.getMessage('HEADER_FONT_LABEL') || 'Font'
 const THEME_BUTTON_LABEL = chrome.i18n.getMessage('HEADER_THEME_BUTTON') || 'Change theme'
 const FONT_BUTTON_LABEL = chrome.i18n.getMessage('HEADER_FONT_BUTTON') || 'Change font'
 
