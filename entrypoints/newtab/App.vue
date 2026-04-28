@@ -1,10 +1,16 @@
 <template>
-  <div class="min-h-screen w-full box-border text-text_black font-sans">
+  <div
+    class="min-h-screen w-full box-border text-text_black"
+    :style="{ fontFamily: currentFontStack }"
+  >
     <Header
       :current-theme-color="theme"
       :theme-options="themeOptions"
+      :current-font="font"
+      :font-options="fontOptions"
       :is-filter="isFilter"
       @change-theme="changeTheme"
+      @change-font="changeFont"
       @filter="(v) => (isFilter = v)"
     />
     <div class="w-full h-[calc(100svh-35px)] flex">
@@ -101,9 +107,6 @@ type SyncedStorageNote = {
   isSynced?: boolean
 }
 
-type Theme = (typeof themeOptions)[number]['name']
-type SyncStatus = 'off' | 'syncing' | 'synced' | 'error'
-
 // 編集対象の全ノート
 const notes = ref<Note[]>([])
 // 現在選択されているノートID
@@ -120,6 +123,8 @@ const text = ref<string>('')
 const isOpenSideMenu = ref<boolean>(true)
 // テーマカラー
 const theme = ref<Theme>('dark')
+// フォント設定
+const font = ref<FontId>('system')
 // 初期化フラグ(onMounted 完了以降 true)
 const isInitialized = ref(false)
 // 各ノートの同期ステータス管理
@@ -132,6 +137,11 @@ const syncUsageBytes = ref<number | null>(null)
  */
 const currentNote = computed(() => {
   return notes.value.find((n) => n.id === currentId.value) ?? null
+})
+
+const currentFontStack = computed(() => {
+  const selected = fontOptions.find((option) => option.id === font.value)
+  return selected?.stack ?? fontOptions[0].stack
 })
 
 /**
@@ -185,6 +195,152 @@ const themeOptions = [
   { name: 'Neon', color: '#141414', border: '#39ff14' },
   { name: 'Aubergine', color: '#291626', border: '#e95420' },
 ]
+const fontOptions = [
+  {
+    id: 'extension-sans',
+    label: 'Extension Sans (local)',
+    stack:
+      "'Noto Sans', 'Inter', 'Roboto', 'Open Sans', 'Poppins', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  },
+  {
+    id: 'system',
+    label: 'System Default',
+    stack:
+      "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  },
+  {
+    id: 'sans',
+    label: 'Global Sans',
+    stack:
+      "'Inter', 'Roboto', 'Open Sans', 'Poppins', 'Noto Sans', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+  },
+  {
+    id: 'serif',
+    label: 'Global Serif',
+    stack: "'Merriweather', 'Lora', 'Playfair Display', 'Times New Roman', serif",
+  },
+  {
+    id: 'latin-display',
+    label: 'Latin Display (Playfair)',
+    stack: "'Playfair Display', 'Merriweather', 'Times New Roman', serif",
+  },
+  {
+    id: 'mono',
+    label: 'Monospace',
+    stack:
+      "'JetBrains Mono', 'Fira Code', 'SFMono-Regular', 'Menlo', 'Consolas', 'Liberation Mono', 'Courier New', monospace",
+  },
+  {
+    id: 'japanese-sans',
+    label: 'Japanese Sans',
+    stack:
+      "'Noto Sans JP', 'M PLUS 1p', 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', Meiryo, sans-serif",
+  },
+  {
+    id: 'japanese-serif',
+    label: 'Japanese Serif',
+    stack: "'Noto Serif JP', 'Shippori Mincho', 'Zen Old Mincho', 'Yu Mincho', 'MS Mincho', serif",
+  },
+  {
+    id: 'korean-sans',
+    label: 'Korean Sans',
+    stack:
+      "'Noto Sans KR', 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
+  },
+  {
+    id: 'korean-serif',
+    label: 'Korean Serif',
+    stack: "'Noto Serif KR', 'Nanum Myeongjo', 'Batang', serif",
+  },
+  {
+    id: 'sc-sans',
+    label: 'Simplified Chinese Sans',
+    stack: "'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Heiti SC', sans-serif",
+  },
+  {
+    id: 'sc-serif',
+    label: 'Simplified Chinese Serif',
+    stack: "'Noto Serif SC', 'Songti SC', 'Source Han Serif SC', 'STSong', serif",
+  },
+  {
+    id: 'tc-sans',
+    label: 'Traditional Chinese Sans',
+    stack: "'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', 'PMingLiU', sans-serif",
+  },
+  {
+    id: 'tc-serif',
+    label: 'Traditional Chinese Serif',
+    stack: "'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', 'PMingLiU', serif",
+  },
+  {
+    id: 'arabic-sans',
+    label: 'Arabic Sans',
+    stack: "'Noto Sans Arabic', 'Arial', 'Tahoma', sans-serif",
+  },
+  {
+    id: 'arabic-serif',
+    label: 'Arabic Serif',
+    stack: "'Noto Naskh Arabic', 'Amiri', 'Scheherazade New', serif",
+  },
+  {
+    id: 'devanagari',
+    label: 'Devanagari Sans',
+    stack: "'Noto Sans Devanagari', 'Hind', 'Kohinoor Devanagari', 'Mangal', sans-serif",
+  },
+  {
+    id: 'devanagari-serif',
+    label: 'Devanagari Serif',
+    stack: "'Noto Serif Devanagari', 'Mukta', 'Kokila', serif",
+  },
+  {
+    id: 'tamil',
+    label: 'Tamil Sans',
+    stack: "'Noto Sans Tamil', 'Lohit Tamil', 'Kohinoor Tamil', 'Arial Unicode MS', sans-serif",
+  },
+  {
+    id: 'tamil-serif',
+    label: 'Tamil Serif',
+    stack: "'Noto Serif Tamil', 'InaiMathi', 'Arima Madurai', serif",
+  },
+  {
+    id: 'thai',
+    label: 'Thai Sans',
+    stack: "'Noto Sans Thai', 'Sarabun', 'Th Sarabun New', 'Tahoma', sans-serif",
+  },
+  {
+    id: 'thai-serif',
+    label: 'Thai Serif',
+    stack: "'Noto Serif Thai', 'Sarabun', 'Th SarabunPSK', serif",
+  },
+  {
+    id: 'hebrew',
+    label: 'Hebrew Sans',
+    stack: "'Noto Sans Hebrew', 'Rubik', 'Alef', 'Arial', sans-serif",
+  },
+  {
+    id: 'hebrew-serif',
+    label: 'Hebrew Serif',
+    stack: "'Noto Serif Hebrew', 'David Libre', 'Frank Ruehl', serif",
+  },
+  {
+    id: 'cyrillic-sans',
+    label: 'Cyrillic Sans',
+    stack: "'Inter', 'Noto Sans', 'Roboto', 'PT Sans', 'Arial', sans-serif",
+  },
+  {
+    id: 'cyrillic-serif',
+    label: 'Cyrillic Serif',
+    stack: "'Lora', 'Merriweather', 'Playfair Display', 'Georgia', 'Times New Roman', serif",
+  },
+  {
+    id: 'georgian',
+    label: 'Georgian',
+    stack: "'Noto Sans Georgian', 'BPG Glaho', 'DejaVu Sans', sans-serif",
+  },
+] as const
+type Theme = (typeof themeOptions)[number]['name']
+type FontId = (typeof fontOptions)[number]['id']
+type SyncStatus = 'off' | 'syncing' | 'synced' | 'error'
 const STORAGE_NOTES_KEY = 'new_tab_note:notes'
 const STORAGE_SYNCED_NOTES_KEY = 'new_tab_note:synced_notes'
 const STORAGE_TARGET_NOTE_ID_KEY = 'new_tab_note:target_note_id'
@@ -192,6 +348,7 @@ const STORAGE_FILTER_KEY = 'new_tab_note:filter'
 const STORAGE_PREVIEW_MODE_KEY = 'new_tab_note:preview_mode'
 const STORAGE_EDIT_VISIBLE_KEY = 'new_tab_note:edit_visible'
 const STORAGE_THEME_COLOR_KEY = 'new_tab_note:theme_color'
+const STORAGE_FONT_FAMILY_KEY = 'new_tab_note:font_family'
 const STORAGE_SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
 const SYNC_MAX_BYTES_PER_ITEM = 8 * 1024
 const SYNC_TOTAL_BYTES_LIMIT = 102_400
@@ -219,6 +376,7 @@ const LOCAL_PERSISTED_KEYS = [
   STORAGE_PREVIEW_MODE_KEY,
   STORAGE_EDIT_VISIBLE_KEY,
   STORAGE_THEME_COLOR_KEY,
+  STORAGE_FONT_FAMILY_KEY,
   STORAGE_SIDE_MENU_OPEN_KEY,
   STORAGE_SYNCED_NOTES_KEY,
 ]
@@ -382,6 +540,13 @@ const applyLocalStateFromCache = (keys: string[]) => {
     }
   }
 
+  if (keys.includes(STORAGE_FONT_FAMILY_KEY)) {
+    const fontValue = readLegacyValue(STORAGE_FONT_FAMILY_KEY)
+    if (isFontId(fontValue)) {
+      font.value = fontValue
+    }
+  }
+
   if (keys.includes(STORAGE_SIDE_MENU_OPEN_KEY)) {
     const sideMenu = readLegacyValue(STORAGE_SIDE_MENU_OPEN_KEY)
     if (typeof sideMenu === 'boolean') {
@@ -490,6 +655,13 @@ const getSyncStatus = (id: string): SyncStatus => {
  */
 const setThemeColor = (value: string) => {
   document.documentElement.setAttribute('data-theme', value)
+}
+
+const isFontId = (value: unknown): value is FontId => {
+  return (
+    typeof value === 'string' &&
+    fontOptions.some((option) => option.id === value)
+  )
 }
 
 /**
@@ -761,6 +933,7 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
       STORAGE_FILTER_KEY,
       STORAGE_PREVIEW_MODE_KEY,
       STORAGE_THEME_COLOR_KEY,
+      STORAGE_FONT_FAMILY_KEY,
       STORAGE_SIDE_MENU_OPEN_KEY,
     ]
     const changedKeys = relevantKeys.filter((key) => key in changes)
@@ -820,6 +993,17 @@ const storageChangeHandler: Parameters<typeof chrome.storage.onChanged.addListen
       if (theme.value !== newTheme) {
         theme.value = newTheme
         setLegacyValue(STORAGE_THEME_COLOR_KEY, newTheme)
+      }
+    })
+  }
+
+  const fontChange = changes[STORAGE_FONT_FAMILY_KEY]
+  if (fontChange && isFontId(fontChange.newValue)) {
+    void runWithStorageUpdate(() => {
+      const newFont = fontChange.newValue as FontId
+      if (font.value !== newFont) {
+        font.value = newFont
+        setLegacyValue(STORAGE_FONT_FAMILY_KEY, newFont)
       }
     })
   }
@@ -1270,6 +1454,16 @@ const changeTheme = (colorName: string) => {
 }
 
 /**
+ * フォント設定を更新する
+ * @param {string} fontId 選択したフォントID
+ */
+const changeFont = (fontId: string) => {
+  if (isFontId(fontId)) {
+    font.value = fontId
+  }
+}
+
+/**
  * chrome.storage.sync に保存されている指定ノートの本文を取得
  * @param {string} id ノートid
  * @returns {Promise<string | null>} 取得した本文
@@ -1327,7 +1521,12 @@ const toggleNoteSync = async (id: string) => {
 // 初期化
 onMounted(async () => {
   await hydrateLegacyCache()
-  const storageKeys = [STORAGE_SYNCED_NOTES_KEY, STORAGE_NOTES_KEY, STORAGE_THEME_COLOR_KEY]
+  const storageKeys = [
+    STORAGE_SYNCED_NOTES_KEY,
+    STORAGE_NOTES_KEY,
+    STORAGE_THEME_COLOR_KEY,
+    STORAGE_FONT_FAMILY_KEY,
+  ]
   const storedValues = await getStorageValues(storageKeys)
 
   const legacyNotes = readLegacyValue(STORAGE_NOTES_KEY)
@@ -1416,6 +1615,19 @@ onMounted(async () => {
     const legacyTheme = readLegacyValue(STORAGE_THEME_COLOR_KEY)
     if (typeof legacyTheme === 'string') {
       theme.value = legacyTheme as Theme
+    }
+  }
+
+  /**
+   * フォント設定の初期値をストレージから取得
+   */
+  const storedFont = storedValues[STORAGE_FONT_FAMILY_KEY]
+  if (isFontId(storedFont)) {
+    font.value = storedFont
+  } else {
+    const legacyFont = readLegacyValue(STORAGE_FONT_FAMILY_KEY)
+    if (isFontId(legacyFont)) {
+      font.value = legacyFont
     }
   }
 
@@ -1550,6 +1762,12 @@ watch(theme, (val) => {
   if (!isInitialized.value || isApplyingStorageUpdate) return // 初期化前・同期反映中は保存しない
   // テーマカラーは端末間で共有するため同期ストレージへ保存
   void setStorageValue(STORAGE_THEME_COLOR_KEY, val)
+})
+
+// フォント設定更新時
+watch(font, (val) => {
+  if (!isInitialized.value || isApplyingStorageUpdate) return
+  void setStorageValue(STORAGE_FONT_FAMILY_KEY, val)
 })
 
 // サイドメニュー開閉更新時

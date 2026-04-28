@@ -15,6 +15,20 @@
     "postinstall": "wxt prepare"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/noto-naskh-arabic": "^5.2.8",
+    "@fontsource/noto-sans": "^5.2.10",
+    "@fontsource/noto-sans-arabic": "^5.2.10",
+    "@fontsource/noto-sans-devanagari": "^5.2.8",
+    "@fontsource/noto-sans-hebrew": "^5.2.8",
+    "@fontsource/noto-sans-jp": "^5.2.8",
+    "@fontsource/noto-sans-kr": "^5.2.8",
+    "@fontsource/noto-sans-sc": "^5.2.8",
+    "@fontsource/noto-sans-tc": "^5.2.8",
+    "@fontsource/noto-serif": "^5.2.9",
+    "@fontsource/noto-serif-jp": "^5.2.7",
+    "@fontsource/noto-serif-kr": "^5.2.8",
     "marked": "^15.0.12",
     "vue": "^3.5.13"
   },
