@@ -2,20 +2,34 @@
 
 ## Supported Versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+Only the latest released version of this extension is supported with security updates.
+Please update to the latest version before reporting a vulnerability.
 
 ## Reporting a Vulnerability
 
-Use this section to tell people how to report a vulnerability.
+If you find a security issue, please do not disclose it publicly before it has been reviewed.
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Report security issues by creating a GitHub issue and include:
+
+- Affected version
+- Browser and OS
+- Steps to reproduce
+- Expected impact
+- Any relevant screenshots, logs, or proof-of-concept details
+
+For sensitive reports, include only the minimum information needed to establish contact in the public issue, then share details privately after the maintainer responds.
+
+## Scope
+
+Security issues include, but are not limited to:
+
+- Unnecessary or overly broad extension permissions
+- Access to note data that is not required for extension features
+- Cross-site scripting or script injection in the extension UI
+- Remote code execution or unsafe dependency behavior
+- Leaking note data outside the local extension context
+
+## Response
+
+The maintainer will review reports as soon as practical.
+Confirmed security issues will be prioritized and released as patch updates.
