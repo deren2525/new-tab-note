@@ -75,28 +75,14 @@ import SideMenu from '@/components/SideMenu.vue'
 import Edit from '@/components/Edit.vue'
 import Preview from '@/components/Preview.vue'
 import EmptyState from '@/components/EmptyState.vue'
-
-type Note = {
-  /** note id */
-  id: string
-  /** 本文 */
-  text: string
-  /** chrome.storage.syncへ同期するかどうか */
-  isSynced: boolean
-  /** 最後に同期した本文。同期OFF中の差分検出と競合解消に利用する */
-  syncedText: string | null
-}
-
-type StoredNotePayload = {
-  /** note id */
-  id: string
-  /** 本文 */
-  text: string
-  /** chrome.storage.syncへ同期するかどうか */
-  isSynced?: boolean
-  /** 最後に同期した本文。同期OFF中の差分検出と競合解消に利用する */
-  syncedText?: string | null
-}
+import {
+  chunkUtf8String,
+  isStoredNoteArray,
+  measureUtf8Bytes,
+  toLocalNote,
+  type Note,
+  type StoredNotePayload,
+} from '@/utils/storage'
 
 type SyncedStorageNote = {
   /** note id */
@@ -244,8 +230,7 @@ const fontOptions = [
   {
     id: 'korean-sans',
     label: 'Korean Sans',
-    stack:
-      "'Noto Sans KR', 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
+    stack: "'Noto Sans KR', 'Nanum Gothic', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif",
   },
   {
     id: 'korean-serif',
@@ -389,8 +374,6 @@ const storageArea = chrome?.storage?.sync
 const localStorageArea = chrome?.storage?.local
 // chrome.storage.sync が利用できる環境かどうか
 const hasSyncStorage = Boolean(storageArea)
-const utf8Encoder = new TextEncoder()
-
 let lastSyncedChunksCount = 0
 
 /**
@@ -658,10 +641,7 @@ const setThemeColor = (value: string) => {
 }
 
 const isFontId = (value: unknown): value is FontId => {
-  return (
-    typeof value === 'string' &&
-    fontOptions.some((option) => option.id === value)
-  )
+  return typeof value === 'string' && fontOptions.some((option) => option.id === value)
 }
 
 /**
@@ -726,43 +706,6 @@ const setLegacyValue = (key: string, value: unknown) => {
     }
   }
   applyLocalStateFromCache([key])
-}
-
-/**
- * 文字列をUTF-8としてシリアライズした時のバイト数を取得
- * @param {string} input 入力テキスト
- */
-const measureUtf8Bytes = (input: string): number => {
-  return utf8Encoder.encode(input).length
-}
-
-/**
- * UTF-8文字列を最大バイト数ごとに分割した配列を生成
- */
-const chunkUtf8String = (input: string, maxBytes: number): string[] => {
-  if (maxBytes <= 0) return []
-  const encoder = new TextEncoder()
-  const decoder = new TextDecoder()
-  const bytes = encoder.encode(input)
-  const chunks: string[] = []
-  let offset = 0
-  while (offset < bytes.length) {
-    const end = Math.min(offset + maxBytes, bytes.length)
-    const slice = bytes.slice(offset, end)
-    const chunk = decoder.decode(slice, { stream: end !== bytes.length })
-    chunks.push(chunk)
-    offset = end
-  }
-  const tail = decoder.decode()
-  if (tail) {
-    const lastIndex = chunks.length - 1
-    if (lastIndex >= 0) {
-      chunks[lastIndex] += tail
-    } else {
-      chunks.push(tail)
-    }
-  }
-  return chunks
 }
 
 /**
@@ -1271,27 +1214,6 @@ const flushQueuedNotesSave = () => {
 }
 
 /**
- * ノート配列かどうか
- * @param value ノート配列候補
- * @returns {value is StoredNotePayload[]} ノート配列判定
- */
-const isStoredNoteArray = (value: unknown): value is StoredNotePayload[] => {
-  return (
-    Array.isArray(value) &&
-    value.every(
-      (note) =>
-        note &&
-        typeof note.id === 'string' &&
-        typeof note.text === 'string' &&
-        (note.isSynced === undefined || typeof note.isSynced === 'boolean') &&
-        (note.syncedText === undefined ||
-          note.syncedText === null ||
-          typeof note.syncedText === 'string')
-    )
-  )
-}
-
-/**
  * chrome.storage.syncから同期ノートを取得し、チャンク構成にも対応して復元する
  * @param metaValue onChangedなどで受け取ったメタ情報
  * @returns 復元結果
@@ -1354,30 +1276,6 @@ const readSyncedNotesFromStorage = async (
   }
 
   return { notes: undefined, chunkCount: 0 }
-}
-
-/**
- * storage.payloadをNote型に整形
- * @param payload chrome.storage.syncやlocalStorageから取り出した生データ
- * @returns {Note} 変換後ノート情報
- */
-const toLocalNote = (payload: StoredNotePayload): Note => {
-  const isSynced = payload.isSynced === true
-  const syncedText =
-    typeof payload.syncedText === 'string'
-      ? payload.syncedText
-      : payload.syncedText === null
-        ? null
-        : isSynced
-          ? payload.text
-          : null
-
-  return {
-    id: payload.id,
-    text: payload.text,
-    isSynced,
-    syncedText,
-  }
 }
 
 /**
