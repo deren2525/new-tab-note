@@ -681,6 +681,11 @@ const readLegacyValue = (key: string) => {
   return clonePersistedValue(fallback)
 }
 
+const handleLocalStorageAreaError = (error: unknown) => {
+  if (String(error).includes('Extension context invalidated')) return
+  console.error('[new-tab-note] Failed to persist to chrome.storage.local', error)
+}
+
 /**
  * localStorageにデータを保存
  * chrome.storage.syncが利用できない環境ではlocalStorageにデータを書き込むようにする
@@ -692,7 +697,11 @@ const setLegacyValue = (key: string, value: unknown) => {
     delete legacyStorageCache[key]
     window.localStorage.removeItem(key)
     if (localStorageArea) {
-      void localStorageArea.remove(key)
+      try {
+        void localStorageArea.remove(key).catch(handleLocalStorageAreaError)
+      } catch (error) {
+        handleLocalStorageAreaError(error)
+      }
     }
     applyLocalStateFromCache([key])
     return
@@ -711,9 +720,9 @@ const setLegacyValue = (key: string, value: unknown) => {
   if (localStorageArea) {
     const payload = clonePersistedValue(cloned)
     try {
-      void localStorageArea.set({ [key]: payload })
+      void localStorageArea.set({ [key]: payload }).catch(handleLocalStorageAreaError)
     } catch (error) {
-      console.error('[new-tab-note] Failed to persist to chrome.storage.local', error)
+      handleLocalStorageAreaError(error)
     }
   }
   applyLocalStateFromCache([key])
