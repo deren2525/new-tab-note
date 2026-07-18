@@ -17,6 +17,7 @@
     "zip": "wxt zip",
     "zip:firefox": "wxt zip -b firefox",
     "compile": "vue-tsc --noEmit",
+    "test": "vitest run",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
@@ -47,6 +48,7 @@
     "tailwindcss": "4.3.0",
     "typescript": "6.0.3",
     "uuid": "14.0.0",
+    "vitest": "4.1.10",
     "vue-tsc": "3.3.1",
     "wxt": "0.20.26"
   },
