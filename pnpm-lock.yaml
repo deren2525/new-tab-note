@@ -26,8 +26,8 @@ importers:
         specifier: 5.2.11
         version: 5.2.11
       '@fontsource/noto-sans':
-        specifier: 5.2.10
-        version: 5.2.10
+        specifier: 5.3.0
+        version: 5.3.0
       '@fontsource/noto-sans-arabic':
         specifier: 5.2.10
         version: 5.2.10
@@ -371,8 +371,8 @@ packages:
   '@fontsource/noto-sans-tc@5.2.9':
     resolution: {integrity: sha512-Z+pXTvXYrip79lPV9X1lCYO3UTys55P25VqcifDStIzdZ86I4R6t8dz+NhGd09YdbvHWvOCB5Icw1m7glKHPNQ==}
 
-  '@fontsource/noto-sans@5.2.10':
-    resolution: {integrity: sha512-J58RVfS/C0Z2VBF+PoU260Tx8cdRGYuS+e3yQe4hYaIYDl0sEVn5CzlLo5zVRvQD0HaIUTV8AZMfqR7rtdEpqQ==}
+  '@fontsource/noto-sans@5.3.0':
+    resolution: {integrity: sha512-fBCog2PY7DiVVTEEqtI/Qdinx/knobHYfoGpjFXdfBX5RoJaBp1Prw2G75p0OIsdlMZg3cLo0c+YbIUYOxnQJw==}
 
   '@fontsource/noto-serif-jp@5.2.8':
     resolution: {integrity: sha512-x+tGrrK+4t/hoHLxAl7Ry5nN8CVPermqz0fD7HtCXzBJSxzFKxNH9y+cuOD3gZW0tyKZ2CD7WvuAfHbISvjL5Q==}
@@ -2463,7 +2463,7 @@ snapshots:
 
   '@fontsource/noto-sans-tc@5.2.9': {}
 
-  '@fontsource/noto-sans@5.2.10': {}
+  '@fontsource/noto-sans@5.3.0': {}
 
   '@fontsource/noto-serif-jp@5.2.8': {}
 
