@@ -22,14 +22,14 @@
   },
   "dependencies": {
     "@fontsource/inter": "5.2.8",
-    "@fontsource/jetbrains-mono": "5.2.8",
+    "@fontsource/jetbrains-mono": "5.3.0",
     "@fontsource/noto-naskh-arabic": "5.2.11",
-    "@fontsource/noto-sans": "5.2.10",
-    "@fontsource/noto-sans-arabic": "5.2.10",
+    "@fontsource/noto-sans": "5.3.0",
+    "@fontsource/noto-sans-arabic": "5.3.0",
     "@fontsource/noto-sans-devanagari": "5.2.8",
     "@fontsource/noto-sans-hebrew": "5.2.8",
     "@fontsource/noto-sans-jp": "5.2.9",
-    "@fontsource/noto-sans-kr": "5.2.9",
+    "@fontsource/noto-sans-kr": "5.3.0",
     "@fontsource/noto-sans-sc": "5.2.9",
     "@fontsource/noto-sans-tc": "5.2.9",
     "@fontsource/noto-serif": "5.2.9",
@@ -41,9 +41,9 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
     "@types/chrome": "0.2.2",
-    "@vitejs/plugin-vue": "6.0.7",
+    "@vitejs/plugin-vue": "6.0.8",
     "@wxt-dev/module-vue": "1.0.3",
-    "postcss": "8.5.15",
+    "postcss": "8.5.25",
     "prettier": "3.8.3",
     "tailwindcss": "4.3.0",
     "typescript": "6.0.3",
@@ -55,7 +55,9 @@
   "pnpm": {
     "overrides": {
       "adm-zip": "0.6.0",
-      "shell-quote": "1.8.4",
+      "brace-expansion": "1.1.17",
+      "postcss": "8.5.25",
+      "shell-quote": "1.9.0",
       "tmp": "0.2.7",
       "vite": "8.0.16"
     }
