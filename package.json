@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@fontsource/inter": "5.2.8",
-    "@fontsource/jetbrains-mono": "5.2.8",
+    "@fontsource/jetbrains-mono": "5.3.0",
     "@fontsource/noto-naskh-arabic": "5.2.11",
     "@fontsource/noto-sans": "5.3.0",
     "@fontsource/noto-sans-arabic": "5.2.10",
