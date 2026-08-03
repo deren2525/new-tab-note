@@ -41,7 +41,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "4.3.3",
     "@types/chrome": "0.2.2",
-    "@vitejs/plugin-vue": "6.0.7",
+    "@vitejs/plugin-vue": "6.0.8",
     "@wxt-dev/module-vue": "1.0.3",
     "postcss": "8.5.25",
     "prettier": "3.8.3",
