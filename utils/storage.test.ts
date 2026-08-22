@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { chunkUtf8String, isStoredNoteArray, measureUtf8Bytes, toLocalNote } from './storage'
 
-describe('UTF-8 storage helpers', () => {
+describe('SYNC-002 UTF-8 storage helpers', () => {
   it('measures ASCII, Japanese, and emoji in UTF-8 bytes', () => {
     expect(measureUtf8Bytes('abc')).toBe(3)
     expect(measureUtf8Bytes('日本')).toBe(6)
@@ -22,7 +22,7 @@ describe('UTF-8 storage helpers', () => {
   })
 })
 
-describe('stored note validation', () => {
+describe('NOTE-001 stored note validation', () => {
   it('accepts current and legacy note payloads', () => {
     expect(isStoredNoteArray([{ id: '1', text: 'legacy' }])).toBe(true)
     expect(
@@ -44,7 +44,7 @@ describe('stored note validation', () => {
   })
 })
 
-describe('stored note normalization', () => {
+describe('NOTE-001 / SYNC-005 stored note normalization', () => {
   it('normalizes a legacy local note', () => {
     expect(toLocalNote({ id: '1', text: 'hello' })).toEqual({
       id: '1',
