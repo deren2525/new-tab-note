@@ -35,6 +35,12 @@
 
 バグの報告や改善案ご要望など大募集です。[こちら](https://github.com/deren2525/new-tab-note/issues/new/choose)からお願いします！
 
+## Documentation
+
+- [要件定義](docs/requirements.md)
+- [同期仕様](docs/sync-specification.md)
+- [同期競合ポリシー](docs/decisions/001-sync-conflict-policy.md)
+
 # WXT + Vue 3
 
 This template should help get you started developing with Vue 3 in WXT.
