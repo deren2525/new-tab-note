@@ -391,7 +391,7 @@ const handleKeydown = (e: KeyboardEvent) => {
 
     const beforeLines = beforeCursor.split('\n')
     const currentLineIndex = beforeLines.length - 1
-    const currentLine = beforeLines[currentLineIndex]
+    const currentLine = beforeLines[currentLineIndex] ?? ''
 
     const listPattern = /^(\s*)([*\-+]|\d+\.)\s+/
 
@@ -430,7 +430,7 @@ const handleKeydown = (e: KeyboardEvent) => {
   // Enterでリスト補完
   if (e.key === 'Enter') {
     const lines = value.substring(0, selectionStart).split('\n')
-    const lastLine = lines[lines.length - 1]
+    const lastLine = lines[lines.length - 1] ?? ''
 
     // 空のリスト記号だけ（リスト削除判定）
     const regexEmptyList = /^\s*([*-]|\d+\.)\s?$/
