@@ -1604,17 +1604,19 @@ watch(text, (val) => {
   if (!currentId.value) return
   const idx = notes.value.findIndex((n) => n.id === currentId.value)
   if (idx === -1) return
+  const note = notes.value[idx]
+  if (!note) return
 
   // 更新内容が同じだった場合はスキップ
-  if (notes.value[idx].text === val) return
+  if (note.text === val) return
 
-  notes.value[idx].text = val
+  note.text = val
 
   // chrome.storage.onChangedから受け取った更新だった場合はスキップ
   if (isApplyingStorageUpdate) return
 
-  if (isInitialized.value && notes.value[idx].isSynced) {
-    setSyncStatus(notes.value[idx].id, 'syncing')
+  if (isInitialized.value && note.isSynced) {
+    setSyncStatus(note.id, 'syncing')
   }
 
   // 同期対象ならchrome.storage.syncへ書き込み、ストレージに保存
