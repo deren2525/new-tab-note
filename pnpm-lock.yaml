@@ -57,8 +57,8 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       '@fontsource/noto-serif-kr':
-        specifier: 5.2.9
-        version: 5.2.9
+        specifier: 5.3.0
+        version: 5.3.0
       marked:
         specifier: 18.0.6
         version: 18.0.6
@@ -378,8 +378,8 @@ packages:
   '@fontsource/noto-serif-jp@5.3.0':
     resolution: {integrity: sha512-7dRFleN7F+uuJdcMW/fJmnl6KLZSn9dHCjAVTaWjTcT4hg5V4ECbi2qgIamI6rS/+yTt16KDLU+9aJi74r6ZxQ==}
 
-  '@fontsource/noto-serif-kr@5.2.9':
-    resolution: {integrity: sha512-DqWJwPt1yduqF/XRD7S1QrJPoLw3qFxtGgp8sZMB2Tb+mahDXkVm3zD/G+MvF0fIxqSWrnl/iyHotKkfFosepw==}
+  '@fontsource/noto-serif-kr@5.3.0':
+    resolution: {integrity: sha512-PMVJPol7ZsWntq4p1blZnhzl1hJruzzQZbWOZJPnJriw+nEUPYyG+pkWCCHfbziZ6OolSxl1o05Z0gy4iMGmPA==}
 
   '@fontsource/noto-serif@5.2.9':
     resolution: {integrity: sha512-A2b7XBo0dSxxTZg95Ap/HLinXq1pEM8PzSvbBFtPMZM5/1BLKEU1dR+PBnLixvOdcC7mup+/NjmyLryQ1E9WeA==}
@@ -2465,7 +2465,7 @@ snapshots:
 
   '@fontsource/noto-serif-jp@5.3.0': {}
 
-  '@fontsource/noto-serif-kr@5.2.9': {}
+  '@fontsource/noto-serif-kr@5.3.0': {}
 
   '@fontsource/noto-serif@5.2.9': {}
 
