@@ -10,24 +10,27 @@ Turn every new tab into a fast Markdown notepad with autosave, multiple notes, t
 
 ### Description
 
-Open a new tab and start writing—no account or setup required. Notes are stored in Chrome, and nothing is sent to the developer.
+✨ Latest Update (2026/09/05)
 
-Features
+・Greatly reduced the extension size for faster startup and lighter updates
+・Improved the first-time experience and updated dependencies to secure versions
 
-- Instant notes on every new tab
-- Markdown editing and preview
-- Automatic saving
-- Multiple notes and color themes
-- Privacy blur mode
-- Optional sync across Chrome devices
+📚 Features
 
-Privacy
+・Turn every new tab into a distraction-free notepad
+・Write in Markdown and preview your formatted notes
+・Keep your work safe with automatic saving, even after reloading
+・Blur your notes with privacy mode to prevent unwanted glances
+・Create and switch between multiple notes
+・Personalize your notepad with a variety of color themes
+・Optionally sync selected notes across devices signed in to the same Chrome account
 
-Your notes are never collected or managed by the developer.
+⚠️ Notes
 
-Synced notes use Chrome's storage quota. If the quota is exceeded, syncing pauses until space is freed. Please back up important content.
+・Chrome limits sync storage to approximately 100 KB in total. If you exceed this quota, syncing pauses until you disable sync for or delete notes you no longer need.
+・Your notes are stored in Chrome and are never collected or managed by the developer. The developer cannot recover data lost because of browser behavior, sync limitations, or other environmental factors. Please back up important information yourself.
 
-For feedback and bug reports:
+For feedback or bug reports, please visit
 https://github.com/deren2525/new-tab-note/issues/new/choose
 
 ## 日本語
@@ -39,25 +42,22 @@ https://github.com/deren2525/new-tab-note/issues/new/choose
 
 ### 説明
 
-新しいタブを開いたら、すぐに書き始められます。
-アカウント登録や初期設定は不要です。
-メモはChrome内に保存され、開発者へ送信されることはありません。
+✨ 最新のアップデート（2026/09/05）
+・拡張機能の容量を大幅に削減し、起動とアップデートを軽量化
+・初回利用時の案内を改善し、依存パッケージを安全なバージョンへ更新
 
-主な機能
+📚 特徴
+・新しいタブをすぐに書き始められるシンプルなメモ帳として使えます
+・Markdownで編集し、整形後の表示をプレビューできます
+・入力内容は自動保存され、リロード後もそのまま残ります
+・プライバシーモードでメモをぼかし、周囲からののぞき見を防げます
+・複数のノートを作成＆切り替えられます
+・豊富なカラーテーマから好みの見た目を選べます
+・選択したノートだけを、同じChromeアカウントの端末間で同期できます
 
-- 新しいタブですぐにメモ
-- Markdownの編集とプレビュー
-- 入力内容の自動保存
-- 複数ノートの作成と切り替え
-- カラーテーマ
-- のぞき見を防ぐぼかし表示
-- Chromeにログインした端末間での任意同期
+⚠️ 注意事項
+・Chromeの同期ストレージには、合計約100KBの容量制限があります。上限を超えると同期が停止するため、不要なノートの同期をオフにするか、削除して空き容量を確保してください
+・メモはChrome内に保存され、開発者が内容を収集・管理することはありません。そのため、ブラウザの動作や同期制限、その他の環境要因によって失われたデータを開発者が復元することはできません。大切な情報はご自身でバックアップしてください
 
-プライバシー
-
-開発者がメモの内容を収集または管理することはありません。
-
-同期にはChromeのストレージ容量制限があります。上限を超えると、空き容量を確保するまで同期が停止します。重要な内容はバックアップしてください。
-
-ご意見・不具合報告:
+ご要望や不具合の報告はこちらから
 https://github.com/deren2525/new-tab-note/issues/new/choose
