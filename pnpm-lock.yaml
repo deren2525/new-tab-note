@@ -23,42 +23,6 @@ importers:
       '@fontsource/jetbrains-mono':
         specifier: 5.3.0
         version: 5.3.0
-      '@fontsource/noto-naskh-arabic':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-arabic':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-devanagari':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-hebrew':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-jp':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-kr':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-sc':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-sans-tc':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-serif':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-serif-jp':
-        specifier: 5.3.0
-        version: 5.3.0
-      '@fontsource/noto-serif-kr':
-        specifier: 5.3.0
-        version: 5.3.0
       marked:
         specifier: 18.0.10
         version: 18.0.10
@@ -315,42 +279,6 @@ packages:
 
   '@fontsource/jetbrains-mono@5.3.0':
     resolution: {integrity: sha512-fqDfB5I9f1p1TV486aUgB9t8zP84P0O1FtQR5Ol9vjwPy+S+EIGlVYm1cvj2W5shcZMTg2nZFdVMoH5wFu8a1A==}
-
-  '@fontsource/noto-naskh-arabic@5.3.0':
-    resolution: {integrity: sha512-S/GDgQ6mh/PKo4mz5+eXNYbEarvpI7yh6eCdOz8tTVbeM7+OUiacIEscaYEibr/+egDtGbO2ZB00sjy1bJC1kQ==}
-
-  '@fontsource/noto-sans-arabic@5.3.0':
-    resolution: {integrity: sha512-i3t6GR0LOReyJVEk+YfYCnxv53wuIelg7Y9NGNvOq4Diq/EP0YszaGXkQwfQNigLjfO4POrLaPGM0sNliGYk7A==}
-
-  '@fontsource/noto-sans-devanagari@5.3.0':
-    resolution: {integrity: sha512-7khYmipS/5KAUUmrO1DKir8yL8XI00d0+ZE9BqbS8XF1jzObv6CpPOk3UeYxF+Pvi8bx9bBvprBCOcbx/eQWTQ==}
-
-  '@fontsource/noto-sans-hebrew@5.3.0':
-    resolution: {integrity: sha512-7owtzuw9D+ipt0g8mcBGOm7MS/mv/REKsjSwEUe749UUsrnG54TSmusNn7oxv2GxbUORAzADLQ8ggdtt7oKkpg==}
-
-  '@fontsource/noto-sans-jp@5.3.0':
-    resolution: {integrity: sha512-OZbBzZ8LrFRs2RFT2Cc0HUV2C2ZeSfyEXhDJWR0EZuZaraJfRubpvrFmUnCljuBDEkw8Vn6CE/+nf9dj9b+0lg==}
-
-  '@fontsource/noto-sans-kr@5.3.0':
-    resolution: {integrity: sha512-/JnpTjaCOXW7xUoqOyCVYSr05VOkDy5Yla9O+WAEiS7u+yYLsmHoqj6v1W0bf91G8G3XA2+NnRS3CX2Tf/FVZg==}
-
-  '@fontsource/noto-sans-sc@5.3.0':
-    resolution: {integrity: sha512-HeqIlGm0+ohOKxZLuHj1qW6r6avHH0OWdKERAcSDI0RQ+MXrteuLKA+M+5eOA8rYy0MFvOR5AT0fQo2rUkye0Q==}
-
-  '@fontsource/noto-sans-tc@5.3.0':
-    resolution: {integrity: sha512-+0MguVH2vIxkVJLiaMHVKHk+yJZmZvMU9d8z88JdUx8C2CgMLOtm7WNloi3HYlvCNy7TpuvjIUvh5iiGp6INxQ==}
-
-  '@fontsource/noto-sans@5.3.0':
-    resolution: {integrity: sha512-fBCog2PY7DiVVTEEqtI/Qdinx/knobHYfoGpjFXdfBX5RoJaBp1Prw2G75p0OIsdlMZg3cLo0c+YbIUYOxnQJw==}
-
-  '@fontsource/noto-serif-jp@5.3.0':
-    resolution: {integrity: sha512-7dRFleN7F+uuJdcMW/fJmnl6KLZSn9dHCjAVTaWjTcT4hg5V4ECbi2qgIamI6rS/+yTt16KDLU+9aJi74r6ZxQ==}
-
-  '@fontsource/noto-serif-kr@5.3.0':
-    resolution: {integrity: sha512-PMVJPol7ZsWntq4p1blZnhzl1hJruzzQZbWOZJPnJriw+nEUPYyG+pkWCCHfbziZ6OolSxl1o05Z0gy4iMGmPA==}
-
-  '@fontsource/noto-serif@5.3.0':
-    resolution: {integrity: sha512-ZrMzjuQlBIcw+qma1slZQdU3YDJvrjLG+9CWU1bxSf3YTkucwqd3EYa/Kfo4Ts19w8IMTGAmtOE3d6wWlgnBtA==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -1772,30 +1700,6 @@ snapshots:
   '@fontsource/inter@5.3.0': {}
 
   '@fontsource/jetbrains-mono@5.3.0': {}
-
-  '@fontsource/noto-naskh-arabic@5.3.0': {}
-
-  '@fontsource/noto-sans-arabic@5.3.0': {}
-
-  '@fontsource/noto-sans-devanagari@5.3.0': {}
-
-  '@fontsource/noto-sans-hebrew@5.3.0': {}
-
-  '@fontsource/noto-sans-jp@5.3.0': {}
-
-  '@fontsource/noto-sans-kr@5.3.0': {}
-
-  '@fontsource/noto-sans-sc@5.3.0': {}
-
-  '@fontsource/noto-sans-tc@5.3.0': {}
-
-  '@fontsource/noto-sans@5.3.0': {}
-
-  '@fontsource/noto-serif-jp@5.3.0': {}
-
-  '@fontsource/noto-serif-kr@5.3.0': {}
-
-  '@fontsource/noto-serif@5.3.0': {}
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
