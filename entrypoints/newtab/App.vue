@@ -64,6 +64,12 @@
         </div>
       </div>
     </div>
+    <ReviewPrompt
+      v-if="isReviewPromptVisible"
+      @review="openReviewPage"
+      @later="snoozeReviewPrompt"
+      @dismiss="dismissReviewPrompt"
+    />
   </div>
 </template>
 
@@ -75,6 +81,12 @@ import SideMenu from '@/components/SideMenu.vue'
 import Edit from '@/components/Edit.vue'
 import Preview from '@/components/Preview.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import ReviewPrompt from '@/components/ReviewPrompt.vue'
+import {
+  nextReviewPromptState,
+  shouldShowReviewPrompt,
+  type ReviewPromptState,
+} from '@/utils/reviewPrompt'
 import {
   chunkUtf8String,
   isStoredNoteArray,
@@ -117,6 +129,7 @@ const isInitialized = ref(false)
 const syncStatusMap = ref<Record<string, SyncStatus>>({})
 // chrome.storage.sync 使用バイト数
 const syncUsageBytes = ref<number | null>(null)
+const isReviewPromptVisible = ref(false)
 
 /**
  * 現在選択しているノートを取得
@@ -184,9 +197,9 @@ const themeOptions = [
 const fontOptions = [
   {
     id: 'extension-sans',
-    label: 'Extension Sans (local)',
+    label: 'Clean Sans',
     stack:
-      "'Noto Sans', 'Inter', 'Roboto', 'Open Sans', 'Poppins', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+      "'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
   },
   {
     id: 'system',
@@ -207,8 +220,8 @@ const fontOptions = [
   },
   {
     id: 'latin-display',
-    label: 'Latin Display (Playfair)',
-    stack: "'Playfair Display', 'Merriweather', 'Times New Roman', serif",
+    label: 'Classic Serif',
+    stack: "Georgia, 'Times New Roman', serif",
   },
   {
     id: 'mono',
@@ -335,6 +348,11 @@ const STORAGE_EDIT_VISIBLE_KEY = 'new_tab_note:edit_visible'
 const STORAGE_THEME_COLOR_KEY = 'new_tab_note:theme_color'
 const STORAGE_FONT_FAMILY_KEY = 'new_tab_note:font_family'
 const STORAGE_SIDE_MENU_OPEN_KEY = 'new_tab_note:side_menu_open'
+const STORAGE_REVIEW_PROMPT_KEY = 'new_tab_note:review_prompt'
+const REVIEW_SNOOZE_MS = 14 * 24 * 60 * 60 * 1000
+const REVIEW_URL =
+  'https://chromewebstore.google.com/detail/new-tab-note/ihcgjbnbjnbfepjmoaklafegcehdfihn/reviews'
+const FORCE_REVIEW_PROMPT_FOR_QA = false
 const SYNC_MAX_BYTES_PER_ITEM = 8 * 1024
 const SYNC_TOTAL_BYTES_LIMIT = 102_400
 const SYNC_CHUNK_SAFE_BYTES = 7000
@@ -364,6 +382,7 @@ const LOCAL_PERSISTED_KEYS = [
   STORAGE_FONT_FAMILY_KEY,
   STORAGE_SIDE_MENU_OPEN_KEY,
   STORAGE_SYNCED_NOTES_KEY,
+  STORAGE_REVIEW_PROMPT_KEY,
 ]
 const legacyStorageCache: Record<string, unknown> = {}
 
@@ -1425,6 +1444,48 @@ const toggleNoteSync = async (id: string) => {
   await saveNotesToStorage()
 }
 
+const readReviewPromptState = (): ReviewPromptState | undefined => {
+  const value = readLegacyValue(STORAGE_REVIEW_PROMPT_KEY)
+  if (
+    typeof value !== 'object' ||
+    value === null ||
+    !('firstSeenAt' in value) ||
+    !('openCount' in value) ||
+    typeof value.firstSeenAt !== 'number' ||
+    typeof value.openCount !== 'number'
+  ) {
+    return undefined
+  }
+  return value as ReviewPromptState
+}
+
+const initializeReviewPrompt = () => {
+  const now = Date.now()
+  const state = nextReviewPromptState(readReviewPromptState(), now)
+  setLegacyValue(STORAGE_REVIEW_PROMPT_KEY, state)
+  isReviewPromptVisible.value =
+    FORCE_REVIEW_PROMPT_FOR_QA || shouldShowReviewPrompt(state, now)
+}
+
+const updateReviewPromptState = (changes: Partial<ReviewPromptState>) => {
+  const current = readReviewPromptState() ?? nextReviewPromptState(undefined, Date.now())
+  setLegacyValue(STORAGE_REVIEW_PROMPT_KEY, { ...current, ...changes })
+  isReviewPromptVisible.value = false
+}
+
+const openReviewPage = () => {
+  updateReviewPromptState({ dismissed: true })
+  window.open(REVIEW_URL, '_blank', 'noopener,noreferrer')
+}
+
+const snoozeReviewPrompt = () => {
+  updateReviewPromptState({ snoozedUntil: Date.now() + REVIEW_SNOOZE_MS })
+}
+
+const dismissReviewPrompt = () => {
+  updateReviewPromptState({ dismissed: true })
+}
+
 // 初期化
 onMounted(async () => {
   await hydrateLegacyCache()
@@ -1565,6 +1626,8 @@ onMounted(async () => {
   text.value = note ? note.text : ''
   // テーマカラー更新
   setThemeColor(theme.value)
+
+  initializeReviewPrompt()
 
   isInitialized.value = true
 
