@@ -31,7 +31,7 @@
     "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/chrome": "0.2.8",
-    "@vitejs/plugin-vue": "6.0.8",
+    "@vitejs/plugin-vue": "6.0.9",
     "@wxt-dev/module-vue": "1.0.3",
     "postcss": "8.5.28",
     "prettier": "3.9.6",
