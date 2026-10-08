@@ -18,7 +18,7 @@
     "zip:firefox": "wxt zip -b firefox",
     "compile": "vue-tsc --noEmit",
     "test": "vitest run",
-    "test:e2e": "pnpm build && playwright test",
+    "test:e2e": "wxt build && playwright test",
     "postinstall": "wxt prepare"
   },
   "dependencies": {
