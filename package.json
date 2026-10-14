@@ -30,7 +30,7 @@
   "devDependencies": {
     "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/chrome": "0.3.4",
+    "@types/chrome": "0.3.5",
     "@vitejs/plugin-vue": "6.0.9",
     "@wxt-dev/module-vue": "1.0.3",
     "postcss": "8.5.29",
