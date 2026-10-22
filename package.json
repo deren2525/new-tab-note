@@ -4,10 +4,10 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@9.6.0",
+  "packageManager": "pnpm@12.15.0",
   "engines": {
-    "node": ">=24.0.0",
-    "pnpm": "9.6.0"
+    "node": ">=24.22.1",
+    "pnpm": "12.15.0"
   },
   "scripts": {
     "dev": "wxt",
@@ -24,34 +24,26 @@
   "dependencies": {
     "@fontsource/inter": "5.3.0",
     "@fontsource/jetbrains-mono": "5.3.0",
-    "marked": "18.1.0",
-    "vue": "3.5.43"
+    "marked": "18.1.1",
+    "vue": "3.5.44"
   },
   "devDependencies": {
-    "@playwright/test": "1.64.0",
+    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.3.3",
-    "@types/chrome": "0.3.4",
-    "@vitejs/plugin-vue": "6.0.9",
+    "@types/chrome": "0.3.6",
+    "@types/node": "24.19.2",
+    "@vitejs/plugin-vue": "6.0.10",
     "@wxt-dev/module-vue": "1.0.3",
-    "postcss": "8.5.29",
-    "prettier": "3.9.9",
+    "postcss": "8.5.31",
+    "prettier": "3.9.10",
     "tailwindcss": "4.3.3",
     "typescript": "6.0.3",
-    "uuid": "14.0.2",
-    "vitest": "5.0.3",
-    "vue-tsc": "3.3.12",
+    "uuid": "14.0.3",
+    "vitest": "5.0.5",
+    "vue-tsc": "3.3.13",
     "wxt": "0.21.4"
   },
-  "pnpm": {
-    "overrides": {
-      "adm-zip": "0.6.1",
-      "brace-expansion": "1.1.21",
-      "esbuild": "0.28.2",
-      "nanoid": "3.3.20",
-      "postcss": "8.5.29",
-      "shell-quote": "1.12.0",
-      "tmp": "0.2.7",
-      "vite": "8.3.4"
-    }
+  "volta": {
+    "node": "24.22.1"
   }
 }
