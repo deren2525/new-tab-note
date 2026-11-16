@@ -32,6 +32,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test release automation
+        run: python3 -m unittest discover -s scripts/release -p "test_*.py"
+
       - name: Test
         run: pnpm test
 

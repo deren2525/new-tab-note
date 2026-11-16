@@ -48,3 +48,25 @@ This template should help get you started developing with Vue 3 in WXT.
 ## Recommended IDE Setup
 
 - [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar).
+
+## GitHub Releaseの自動作成
+
+このリポジトリの`develop`から`main`へのPRがマージされると、
+[Releaseワークフロー](.github/workflows/release.yml)がGitHub Releaseを公開します。
+マージせずに閉じたPRや、他のブランチ・フォークからのPRは対象外です。
+
+- 正式なバージョンは、PRのマージコミットにある`wxt.config.ts`の`manifest.version`です。`package.json`の`version`は使いません。
+- タグ・Release名は`v<version>`とし、タグの対象はPRのマージコミットです。
+- PR本文の`## リリース内容`を`## 変更内容`として掲載します。バージョンまたはリリース内容を取得できない場合はエラーになります。
+- `## 対象PR`にある`- #123 タイトル`や`- [#123](URL) タイトル`の項目を`## 関連PR`として掲載します。該当項目がなければ見出しも省略し、直接コミットに関する説明は掲載しません。
+- 表示形式・見出しは[リリースノートテンプレート](.github/release-notes-template.md)で管理します。`{{changes}}`が変更内容、`{{#pull_requests}}`から`{{/pull_requests}}`までが関連PRのある場合のみ表示するブロック、`{{pull_requests}}`がPR一覧です。
+- 同じバージョンのReleaseがあれば、変更せずに終了します。Releaseがなくても同名タグが別コミットを指す場合はエラーにします。
+
+ワークフローは`GITHUB_TOKEN`の`contents: write`権限を使います。
+再実行しても既存Releaseを上書きしません。Chrome Web Storeへの公開は行いません。
+
+リリース処理のテストはAPIをモックし、実際のタグ・Releaseを作成しません。CIでも実行します。
+
+```sh
+python3 -m unittest discover -s scripts/release -p 'test_*.py'
+```
