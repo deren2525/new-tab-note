@@ -55,6 +55,7 @@ class ReleaseTests(unittest.TestCase):
         publish("owner/repo", self.prepare())
         self.assertEqual(api.call_count, 1)
 
+    @patch("create.complete_release_notes", new=lambda repository, payload: payload["body"])
     @patch("create.api")
     def test_missing_release_is_created_but_auth_errors_fail(self, api):
         payload = self.prepare()
@@ -104,6 +105,7 @@ class ReleaseTests(unittest.TestCase):
         self.event["pull_request"]["body"] = "## リリース内容\n- Vueの`{{ value }}`を修正"
         self.assertIn("{{ value }}", self.prepare()["body"])
 
+    @patch("create.complete_release_notes", new=lambda repository, payload: payload["body"])
     @patch("create.api")
     def test_existing_tag_must_target_merge_commit(self, api):
         missing = HTTPError("url", 404, "missing", {}, None)
@@ -115,6 +117,36 @@ class ReleaseTests(unittest.TestCase):
         api.side_effect = [missing, {"sha": "merged-sha"}, {"html_url": "new"}]
         publish("owner/repo", self.prepare())
         api.assert_called_with("/repos/owner/repo/releases", self.prepare())
+
+
+    @patch("create.api")
+    def test_aggregates_all_release_prs_and_deduplicates_changes(self, api):
+        from create import complete_release_notes
+        api.side_effect = [
+            {"body": "## What's Changed\n* https://github.com/owner/repo/pull/99\n* https://github.com/owner/repo/pull/100\n\n**Full Changelog**: https://github.com/owner/repo/compare/v3.6.0...v3.7.0"},
+            {"merged_at": "date", "body": "## リリース内容\n- Node更新\n- 共通\n"},
+            {"merged_at": "date", "body": "## リリース内容\n- 自動化\n- 共通\n"},
+        ]
+        notes = complete_release_notes("owner/repo", self.prepare())
+        self.assertIn("- Node更新", notes)
+        self.assertIn("- 自動化", notes)
+        self.assertEqual(notes.count("- 共通"), 1)
+        self.assertIn("## What's Changed", notes)
+        self.assertIn("**Full Changelog**: https://", notes)
+        self.assertNotIn("## 関連PR", notes)
+
+    @patch("create.api")
+    def test_no_structured_pr_content_preserves_current_notes(self, api):
+        from create import complete_release_notes
+        api.return_value = {"body": "## What's Changed\n"}
+        self.assertIn("- 修正", complete_release_notes("owner/repo", self.prepare()))
+
+    @patch("create.api")
+    def test_generation_failure_does_not_publish_incomplete_notes(self, api):
+        from create import complete_release_notes
+        api.side_effect = HTTPError("url", 403, "forbidden", {}, None)
+        with self.assertRaises(HTTPError):
+            complete_release_notes("owner/repo", self.prepare())
 
 
 if __name__ == "__main__":

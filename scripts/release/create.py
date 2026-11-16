@@ -37,12 +37,22 @@ def prepare_release(event, config, template):
     )
     if not version:
         raise ValueError("Cannot read manifest.version from wxt.config.ts")
-    changes = section(pr["body"] or "", "リリース内容")
+    tag = "v" + version.group(1)
+    return {
+        "tag_name": tag,
+        "name": tag,
+        "target_commitish": pr["merge_commit_sha"],
+        "body": render_notes(pr["body"] or "", template),
+    }
+
+
+def render_notes(body, template):
+    changes = section(body, "リリース内容")
     if not changes:
         raise ValueError("Release PR must contain a nonempty リリース内容 section")
     # Only include actual PR entries, never a 'none' placeholder.
     entries = [
-        line for line in section(pr["body"], "対象PR").splitlines()
+        line for line in section(body, "対象PR").splitlines()
         if re.match(r"^\s*[-*]\s+(?:#\d+\b|\[#\d+\]\()", line)
     ]
     if "{{changes}}" not in template:
@@ -61,13 +71,7 @@ def prepare_release(event, config, template):
         raise ValueError("Unknown or unmatched release notes template placeholder")
     values = {"changes": changes, "pull_requests": "\n".join(entries)}
     notes = re.sub(r"{{(changes|pull_requests)}}", lambda match: values[match.group(1)], notes)
-    tag = "v" + version.group(1)
-    return {
-        "tag_name": tag,
-        "name": tag,
-        "target_commitish": pr["merge_commit_sha"],
-        "body": notes.strip() + "\n",
-    }
+    return notes.strip() + "\n"
 
 
 def api(path, payload=None):
@@ -82,6 +86,32 @@ def api(path, payload=None):
     )
     with urlopen(request, timeout=30) as response:
         return json.load(response)
+
+
+def complete_release_notes(repository, payload):
+    generated = api(f"/repos/{repository}/releases/generate-notes", {
+        "tag_name": payload["tag_name"],
+        "target_commitish": payload["target_commitish"],
+    })["body"].replace("\r\n", "\n")
+    numbers = dict.fromkeys(re.findall(
+        rf"https://github\.com/{re.escape(repository)}/pull/(\d+)\b", generated
+    ))
+    changes = []
+    for number in numbers:
+        pr = api(f"/repos/{repository}/pulls/{number}")
+        if pr.get("merged_at"):
+            changes.extend(section(pr.get("body") or "", "リリース内容").splitlines())
+    changes = list(dict.fromkeys(line for line in changes if line.strip()))
+    if changes:
+        template = (Path(__file__).resolve().parents[2] / ".github/release-notes-template.md").read_text()
+        body = render_notes("## リリース内容\n" + "\n".join(changes), template)
+    else:
+        body = payload["body"]
+    changelog, separator, comparison = generated.partition("**Full Changelog**:")
+    notes = changelog.strip() + "\n\n" + body.strip()
+    if separator:
+        notes += f"\n\n{separator} {comparison.strip()}"
+    return notes.strip() + "\n"
 
 
 def publish(repository, payload):
@@ -103,6 +133,7 @@ def publish(repository, payload):
     else:
         if tagged["sha"] != payload["target_commitish"]:
             raise ValueError("Existing release tag points to a different commit")
+    payload = {**payload, "body": complete_release_notes(repository, payload)}
     release = api(releases, payload)
     print(f"Created release: {release['html_url']}")
 
